@@ -1,0 +1,28 @@
+{
+  "author": "Alexey Shekhirin <a.shekhirin@gmail.com>",
+  "name": "comrademajor",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "rimraf dist pkg && webpack --config webpack.prod.js",
+    "start": "rimraf dist pkg && webpack serve",
+    "test": "cargo test && wasm-pack test --headless"
+  },
+  "devDependencies": {
+    "@types/html-webpack-plugin": "^3.2.4",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/wicg-file-system-access": "^2020.9.1",
+    "@wasm-tool/wasm-pack-plugin": "^1.1.0",
+    "copy-webpack-plugin": "^6.3.2",
+    "html-webpack-plugin": "^4.5.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "rimraf": "^3.0.0",
+    "ts-loader": "^8.0.11",
+    "typescript": "^4.1.2",
+    "webpack": "^5.6.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.7.1",
+    "webpack-merge": "^5.4.0"
+  }
+}
