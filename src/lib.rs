@@ -3,20 +3,20 @@ extern crate lazy_static;
 
 mod file;
 mod types;
+pub mod processor;
 
 use file::File;
 use wasm_bindgen::prelude::*;
 use encoding_rs;
-use marked::{EncodingHint, NodeRef, Node};
+use marked::{EncodingHint, NodeRef};
 use marked::html;
 use crate::file::Kind;
-use crate::types::processor::Processor;
+use processor::Processor;
 use crate::types::comment::Comment;
 use crate::types::location::{Location, LocationArray};
 use js_sys;
 use wasm_bindgen::JsCast;
 use regex::Regex;
-use std::ops::Range;
 
 lazy_static! {
     static ref SWEAR_RE: Regex = Regex::new(r"(?i)дурак").unwrap();
@@ -36,6 +36,7 @@ extern "C" {
     fn log(s: &str);
 }
 
+#[allow(unused_macros)]
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
@@ -75,10 +76,10 @@ fn process_comments(root: NodeRef, processor: Processor) {
             let url = items[1]
                 .text()
                 .and_then(|url| Some(url.to_string()));
-            let attachment = items[2]
+            let _attachment = items[2]
                 .text()
                 .and_then(|attachment| Some(attachment.to_string()));
-            let date = items[3]
+            let _date = items[3]
                 .text()
                 .and_then(|date| Some(date.to_string()));
 
@@ -89,6 +90,7 @@ fn process_comments(root: NodeRef, processor: Processor) {
 
             Some(Comment::new(
                 text.to_string(),
+                // TODO: move to separate trait for transform Vec into generic JS-compliant array
                 highlighted_parts
                     .into_iter()
                     .map(JsValue::from)
