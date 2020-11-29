@@ -1,23 +1,23 @@
 import React, {Component, ReactElement, ReactNode} from "react"
-import {Comment as WASMComment} from "../../pkg/index"
+import {Message as WASMMessage} from "../../pkg/index"
 
 interface Props {
-  comment: WASMComment
+  message: WASMMessage
 }
 
 interface State {
 
 }
 
-export default class Comment extends Component<Props, State> {
+export default class Message extends Component<Props, State> {
   render() {
     return <div>
-      {this.highlightedText()}
+      {this.props.message.author && `${this.props.message.author}: `}{this.highlightedText()}
     </div>
   }
 
   highlightedText(): ReactNode {
-    const {text, highlightedParts} = this.props.comment
+    const {text, highlightedParts} = this.props.message
     const highlightedText: Array<string | ReactElement> = Array.from(text)
 
     highlightedParts

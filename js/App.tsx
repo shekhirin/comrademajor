@@ -1,15 +1,17 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {Comment as WASMComment, File, Kind, processFile} from "../pkg/index"
+import {Comment as WASMComment, File, Kind, Message as WASMMessage, processFile} from "../pkg/index"
 import Processor from "./Processor"
 import Comment from "./components/Comment"
+import Message from "./components/Message"
 
 interface Props {
 }
 
 interface State {
-  processor: Processor;
+  processor: Processor
   comments: WASMComment[]
+  messages: WASMMessage[]
 }
 
 class App extends Component<Props, State> {
@@ -18,9 +20,11 @@ class App extends Component<Props, State> {
 
     this.state = {
       processor: new Processor({
-        newComment: this.addComment.bind(this)
+        newComment: this.addComment.bind(this),
+        newMessage: this.addMessage.bind(this)
       }),
-      comments: []
+      comments: [],
+      messages: []
     }
   }
 
@@ -31,14 +35,29 @@ class App extends Component<Props, State> {
     })
   }
 
+  addMessage(message: WASMMessage) {
+    this.setState({
+      ...this.state,
+      messages: [...this.state.messages, message]
+    })
+  }
+
   render() {
     return (
       <div>
         <div>
           comments:
           <ul>
-            {this.state.comments.map(comment =>
-              <li key={comment.url}><Comment comment={comment}/></li>
+            {this.state.comments.map((comment, i) =>
+              <li key={i}><Comment comment={comment}/></li>
+            )}
+          </ul>
+        </div>
+        <div>
+          messages:
+          <ul>
+            {this.state.messages.map((message, i) =>
+              <li key={i}><Message message={message}/></li>
             )}
           </ul>
         </div>
@@ -64,8 +83,11 @@ class App extends Component<Props, State> {
 
     if (path.length > 1) {
       switch (path[1]) {
-        case "comments":
-          kind = Kind.Comments
+        // case "comments":
+        //   kind = Kind.Comments
+        //   break
+        case "messages":
+          kind = Kind.Messages
           break
         default:
           console.log(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
@@ -86,6 +108,7 @@ class App extends Component<Props, State> {
 
           fileCallback(new File(
             data,
+            path,
             kind
           ))
           filesCounter++
@@ -97,7 +120,7 @@ class App extends Component<Props, State> {
 
     const t1 = performance.now()
 
-    console.log(`${path.join("/")}: ${filesCounter} files in ${t1 - t0}ms`)
+    console.debug(`${path.join("/")}: ${filesCounter} files in ${t1 - t0}ms`)
   }
 }
 

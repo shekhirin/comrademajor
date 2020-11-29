@@ -1,17 +1,20 @@
 use wasm_bindgen::prelude::*;
+use crate::js_array::typed::*;
 
 #[wasm_bindgen]
 pub struct File {
     data: Vec<u8>,
+    path: Vec<String>,
     pub kind: Kind,
 }
 
 #[wasm_bindgen]
 impl File {
     #[wasm_bindgen(constructor)]
-    pub fn new(data: Vec<u8>, kind: Kind) -> File {
+    pub fn new(data: Vec<u8>, path: StringArray, kind: Kind) -> File {
         File {
             data,
+            path: path.to_vec(),
             kind,
         }
     }
@@ -21,9 +24,9 @@ impl File {
         self.data.clone()
     }
 
-    #[wasm_bindgen(setter)]
-    pub fn set_data(&mut self, data: Vec<u8>) {
-        self.data = data
+    #[wasm_bindgen(getter)]
+    pub fn path(&self) -> StringArray {
+        self.path.to_js_array()
     }
 }
 
@@ -31,5 +34,6 @@ impl File {
 #[derive(Copy, Clone)]
 pub enum Kind {
     Unknown,
-    Comments
+    Comments,
+    Messages
 }

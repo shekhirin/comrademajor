@@ -33,7 +33,7 @@ module.exports = {
     }),
     new WASMPackPlugin({
       crateDirectory: __dirname
-    }),
+    })
   ],
   experiments: {
     syncWebAssembly: true
