@@ -15,8 +15,7 @@ extern "C" {
 impl TypedJsArray<String> for Vec<String> {
     type OutputArray = StringArray;
     fn to_js_array(&self) -> StringArray {
-        self
-            .iter()
+        self.iter()
             .map(JsValue::from)
             .collect::<js_sys::Array>()
             .unchecked_into::<StringArray>()

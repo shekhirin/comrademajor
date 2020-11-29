@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use crate::js_array::typed::*;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct File {
@@ -35,5 +35,5 @@ impl File {
 pub enum Kind {
     Unknown,
     Comments,
-    Messages
+    Messages,
 }

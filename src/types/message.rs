@@ -1,21 +1,18 @@
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
-use crate::types::location::{LocationArray, Location};
 use crate::js_array::binded::*;
+use crate::highlight::location::{Location, LocationArray};
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Kludge {
-    attachment_link: String
+    attachment_link: String,
 }
 
 #[wasm_bindgen]
 impl Kludge {
     #[wasm_bindgen(constructor)]
     pub fn new(attachment_link: String) -> Kludge {
-        Kludge {
-            attachment_link
-        }
+        Kludge { attachment_link }
     }
 
     #[wasm_bindgen(getter, js_name = "attachmentLink")]
@@ -24,9 +21,10 @@ impl Kludge {
     }
 }
 
-crate::array!(Kludge, KludgeArray, "Array<Kludge>", KludgeWrapper);
+crate::js_array!(KludgeArray, "Array<Kludge>");
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Message {
     pub id: u32,
     dialog_name: String,
@@ -37,24 +35,33 @@ pub struct Message {
     highlighted_parts: Vec<Location>,
 }
 
-#[wasm_bindgen]
 impl Message {
-    #[wasm_bindgen(constructor)]
-    pub fn new(id: u32, dialog_name: String, author: Option<String>, author_url: Option<String>, text: String, kludges: KludgeArray, highlighted_parts: LocationArray) -> Message {
+    pub fn new(
+        id: u32,
+        dialog_name: String,
+        author: Option<String>,
+        author_url: Option<String>,
+        text: String,
+        kludges: Vec<Kludge>,
+        highlighted_parts: Vec<Location>,
+    ) -> Message {
         Message {
             id,
             dialog_name,
             author,
             author_url,
             text,
-            kludges: kludges.to_vec(),
-            highlighted_parts: highlighted_parts.to_vec(),
+            kludges,
+            highlighted_parts,
         }
     }
+}
 
+#[wasm_bindgen]
+impl Message {
     #[wasm_bindgen(getter, js_name = "dialogName")]
     pub fn dialog_name(&self) -> String {
-        self.dialog_name.clone()
+        self.dialog_name.to_string()
     }
 
     #[wasm_bindgen(getter)]
@@ -74,9 +81,7 @@ impl Message {
 
     #[wasm_bindgen(getter)]
     pub fn kludges(&self) -> KludgeArray {
-        self.kludges
-            .clone()
-            .to_js_array::<KludgeArray>()
+        self.kludges.clone().to_js_array::<KludgeArray>()
     }
 
     #[wasm_bindgen(getter, js_name = "highlightedParts")]

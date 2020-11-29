@@ -83,9 +83,9 @@ class App extends Component<Props, State> {
 
     if (path.length > 1) {
       switch (path[1]) {
-        // case "comments":
-        //   kind = Kind.Comments
-        //   break
+        case "comments":
+          kind = Kind.Comments
+          break
         case "messages":
           kind = Kind.Messages
           break
