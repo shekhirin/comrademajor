@@ -1,6 +1,7 @@
-use crate::js_array::binded::*;
-use crate::highlight::location::{Location, LocationArray};
 use wasm_bindgen::prelude::*;
+
+use crate::highlight::location::{Location, LocationArray};
+use crate::js_array::binded::*;
 
 #[wasm_bindgen]
 #[derive(Clone)]

@@ -1,5 +1,6 @@
-use crate::highlight::location::Location;
 use regex::Regex;
+
+use crate::highlight::location::Location;
 
 pub fn extract_locations(re: &Regex, text: &str) -> Vec<Location> {
     re.find_iter(text)

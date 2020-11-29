@@ -1,6 +1,7 @@
 use regex::Regex;
-use crate::highlight::location::Location;
+
 use crate::highlight::extract::extract_locations;
+use crate::highlight::location::Location;
 
 lazy_static! {
     static ref SWEAR_RE: Regex = Regex::new(r"(?i)сук|пидор|пидр|пидар|хуй").unwrap();

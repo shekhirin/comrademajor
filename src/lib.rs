@@ -1,6 +1,18 @@
 #[macro_use]
 extern crate lazy_static;
 
+use encoding_rs;
+use marked::EncodingHint;
+use marked::html;
+use wasm_bindgen::prelude::*;
+
+use file::File;
+use processor::JsProcessor;
+
+use crate::file::Kind;
+use crate::parse::parser::Parser;
+use crate::processor::Processor;
+
 mod file;
 mod highlight;
 mod js_array;
@@ -8,20 +20,10 @@ mod parse;
 mod processor;
 mod types;
 
-use crate::file::Kind;
-use crate::parse::parser::Parser;
-use encoding_rs;
-use file::File;
-use marked::html;
-use marked::{EncodingHint};
-use processor::JsProcessor;
-use wasm_bindgen::prelude::*;
-use crate::processor::Processor;
-
 #[wasm_bindgen(start, skip_typescript)]
 pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
-    console_error_panic_hook::set_once();
+        console_error_panic_hook::set_once();
 
     Ok(())
 }

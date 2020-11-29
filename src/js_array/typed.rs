@@ -1,10 +1,5 @@
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-
-pub trait TypedJsArray<T> {
-    type OutputArray: JsCast;
-    fn to_js_array(&self) -> Self::OutputArray;
-}
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
@@ -12,19 +7,19 @@ extern "C" {
     pub type StringArray;
 }
 
-impl TypedJsArray<String> for Vec<String> {
-    type OutputArray = StringArray;
-    fn to_js_array(&self) -> StringArray {
-        self.iter()
+impl From<Vec<String>> for StringArray {
+    fn from(vec: Vec<String>) -> Self {
+        vec
+            .iter()
             .map(JsValue::from)
             .collect::<js_sys::Array>()
             .unchecked_into::<StringArray>()
     }
 }
 
-impl StringArray {
-    pub fn to_vec(&self) -> Vec<String> {
-        js_sys::Array::from(&JsValue::from(self))
+impl From<StringArray> for Vec<String> {
+    fn from(arr: StringArray) -> Self {
+        js_sys::Array::from(&JsValue::from(arr))
             .iter()
             .map(|v| v.as_string().unwrap())
             .collect()

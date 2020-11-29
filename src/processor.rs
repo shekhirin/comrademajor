@@ -1,5 +1,6 @@
-use crate::types::*;
 use wasm_bindgen::prelude::*;
+
+use crate::types::*;
 
 macro_rules! processor_methods {
     ($(($name:ident,$type:ty))*) => (

@@ -1,5 +1,6 @@
-use crate::js_array::typed::*;
 use wasm_bindgen::prelude::*;
+
+use crate::js_array::typed::*;
 
 #[wasm_bindgen]
 pub struct File {
@@ -14,7 +15,7 @@ impl File {
     pub fn new(data: Vec<u8>, path: StringArray, kind: Kind) -> File {
         File {
             data,
-            path: path.to_vec(),
+            path: path.into(),
             kind,
         }
     }
@@ -26,7 +27,7 @@ impl File {
 
     #[wasm_bindgen(getter)]
     pub fn path(&self) -> StringArray {
-        self.path.to_js_array()
+        self.path.clone().into()
     }
 }
 
