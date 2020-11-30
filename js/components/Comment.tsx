@@ -1,8 +1,8 @@
 import React, {Component, ReactElement, ReactNode} from "react"
-import {Comment as WASMComment} from "../../pkg/index"
+import CommentType from "../types/Comment"
 
 interface Props {
-  comment: WASMComment
+  comment: CommentType
 }
 
 interface State {

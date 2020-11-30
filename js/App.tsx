@@ -1,16 +1,20 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {Comment as WASMComment, File, Kind, Message as WASMMessage, processFile} from "../pkg/index"
-import Processor from "./Processor"
+import {File as WASMFile, Kind, Message as WASMMessage} from "../pkg/index"
 import Comment from "./components/Comment"
 import Message from "./components/Message"
+import File from "./types/File"
+import CommentType from "./types/Comment"
+import MessageType from "./types/Comment"
+import {Event, EventType} from "./worker"
+
+const worker = new Worker("worker.js")
 
 interface Props {
 }
 
 interface State {
-  processor: Processor
-  comments: WASMComment[]
+  comments: CommentType[]
   messages: WASMMessage[]
 }
 
@@ -18,27 +22,35 @@ class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
+    const addComment = this.addComment.bind(this)
+    const addMessage = this.addMessage.bind(this)
+
+    worker.onmessage = function (e: MessageEvent<Event>) {
+      switch (e.data.type) {
+        case EventType.COMMENT:
+          addComment(e.data.data as CommentType)
+          break
+        case EventType.MESSAGE:
+          addMessage(e.data.data as MessageType)
+          break
+      }
+    }
+
     this.state = {
-      processor: new Processor({
-        newComment: this.addComment.bind(this),
-        newMessage: this.addMessage.bind(this)
-      }),
       comments: [],
       messages: []
     }
   }
 
-  addComment(comment: WASMComment) {
-    this.setState({
-      ...this.state,
-      comments: [...this.state.comments, comment]
+  addComment(comment: CommentType) {
+    this.setState((prevState) => {
+      return {...prevState, comments: [...prevState.comments, comment]}
     })
   }
 
   addMessage(message: WASMMessage) {
-    this.setState({
-      ...this.state,
-      messages: [...this.state.messages, message]
+    this.setState((prevState) => {
+      return {...prevState, messages: [...prevState.messages, message]}
     })
   }
 
@@ -68,12 +80,10 @@ class App extends Component<Props, State> {
 
   async directoryPicker() {
     const dir = await showDirectoryPicker()
-    await this.printDirectoryFiles([dir.name], dir, async file => {
-      processFile(file, this.state.processor)
-    })
+    await this.printDirectoryFiles([dir.name], dir)
   }
 
-  async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle, fileCallback: (file: File) => void) {
+  async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle) {
     const t0 = performance.now()
 
     let filesCounter = 0
@@ -98,7 +108,7 @@ class App extends Component<Props, State> {
     for await (const entry of dir.values()) {
       switch (entry.kind) {
         case "directory":
-          await this.printDirectoryFiles(path.concat(entry.name), await dir.getDirectoryHandle(entry.name), fileCallback)
+          await this.printDirectoryFiles(path.concat(entry.name), await dir.getDirectoryHandle(entry.name))
           break
         case "file":
           const file = await (await dir.getFileHandle(entry.name)).getFile()
@@ -106,11 +116,14 @@ class App extends Component<Props, State> {
           const data = new Uint8Array(await file.arrayBuffer())
           sizeCounter += data.length
 
-          fileCallback(new File(
-            data,
-            path,
-            kind
-          ))
+          worker.postMessage({
+            type: EventType.FILE,
+            data: new File(new WASMFile(
+              data,
+              path,
+              kind
+            ))
+          })
           filesCounter++
           break
         default:

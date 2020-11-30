@@ -6,6 +6,7 @@ use crate::js_array::typed::*;
 pub struct File {
     data: Vec<u8>,
     path: Vec<String>,
+    #[wasm_bindgen(readonly)]
     pub kind: Kind,
 }
 
