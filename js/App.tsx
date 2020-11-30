@@ -69,7 +69,7 @@ class App extends Component<Props, State> {
   async directoryPicker() {
     const dir = await showDirectoryPicker()
     await this.printDirectoryFiles([dir.name], dir, async file => {
-      await processFile(file, this.state.processor)
+      processFile(file, this.state.processor)
     })
   }
 

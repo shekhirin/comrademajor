@@ -29,10 +29,11 @@ module.exports = {
   },
   plugins: [
     new HTMLWebpackPlugin({
-      template: path.join(__dirname, 'static', 'index.html')
+      template: path.join(__dirname, "static", "index.html")
     }),
     new WASMPackPlugin({
-      crateDirectory: __dirname
+      crateDirectory: path.join(__dirname, "cargo"),
+      outDir: path.join(__dirname, "pkg")
     })
   ],
   experiments: {

@@ -4,7 +4,7 @@ use crate::types::*;
 
 macro_rules! processor_methods {
     ($(($name:ident,$type:ty))*) => (
-        #[wasm_bindgen(module = "/js/Processor.ts")]
+        #[wasm_bindgen(module = "/../js/Processor.ts")]
         extern "C" {
             $(
                 #[wasm_bindgen(method)]
@@ -22,7 +22,7 @@ macro_rules! processor_methods {
     );
 }
 
-#[wasm_bindgen(module = "/js/Processor.ts")]
+#[wasm_bindgen(module = "/../js/Processor.ts")]
 extern "C" {
     pub type JsProcessor;
 }
