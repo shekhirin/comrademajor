@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 import {File as WASMFile, Kind, Message as WASMMessage} from "../pkg/index"
 import Comment from "./components/Comment"
 import Message from "./components/Message"
-import FileType from "./types/File"
+import File from "./types/File"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import {Event, EventType} from "./worker"
@@ -117,7 +117,7 @@ class App extends Component<Props, State> {
           console.debug(`${entryPath.join("/")}: started`)
 
           console.debug(`${entryPath.join("/")}: getting file handle & file itself...`)
-          const file = await (await this.getFileHandle(dir, entry.name)).getFile()
+          const file = await (await dir.getFileHandle(entry.name)).getFile()
 
           console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
           const data = new Uint8Array(await file.arrayBuffer())
@@ -125,7 +125,7 @@ class App extends Component<Props, State> {
           console.debug(`${entryPath.join("/")}: sending message to worker...`)
           worker.postMessage({
             type: EventType.FILE,
-            data: new FileType(new WASMFile(
+            data: new File(new WASMFile(
               data,
               entryPath,
               kind
@@ -143,21 +143,6 @@ class App extends Component<Props, State> {
     const t1 = performance.now()
 
     console.debug(`${path.join("/")}: finished ${filesCounter} files in ${t1 - t0}ms`)
-  }
-
-  async getFileHandle(dir: FileSystemDirectoryHandle, name: string, timeout = 500, tries = 5, waitBetweenTries = 500): Promise<FileSystemFileHandle> {
-    while (tries--) {
-      try {
-        return await new Promise(async (resolve, reject) => {
-          setTimeout(() => reject("timeout"), timeout)
-          resolve(await dir.getFileHandle(name))
-        })
-      } catch (e) {
-        await new Promise(resolve => setTimeout(resolve, waitBetweenTries))
-        if (!tries)
-          return e
-      }
-    }
   }
 }
 
