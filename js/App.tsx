@@ -117,7 +117,7 @@ class App extends Component<Props, State> {
           console.debug(`${entryPath.join("/")}: started`)
 
           console.debug(`${entryPath.join("/")}: getting file handle & file itself...`)
-          const file = await this.getFile(dir, entry.name)
+          const file = await (await this.getFileHandle(dir, entry.name)).getFile()
 
           console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
           const data = new Uint8Array(await file.arrayBuffer())
@@ -145,13 +145,12 @@ class App extends Component<Props, State> {
     console.debug(`${path.join("/")}: finished ${filesCounter} files in ${t1 - t0}ms`)
   }
 
-  async getFile(dir: FileSystemDirectoryHandle, name: string, timeout = 500, tries = 5, waitBetweenTries = 500): Promise<File> {
+  async getFileHandle(dir: FileSystemDirectoryHandle, name: string, timeout = 500, tries = 5, waitBetweenTries = 500): Promise<FileSystemFileHandle> {
     while (tries--) {
       try {
         return await new Promise(async (resolve, reject) => {
           setTimeout(() => reject("timeout"), timeout)
-
-          resolve(await (await dir.getFileHandle(name)).getFile())
+          resolve(await dir.getFileHandle(name))
         })
       } catch (e) {
         await new Promise(resolve => setTimeout(resolve, waitBetweenTries))
