@@ -113,6 +113,8 @@ class App extends Component<Props, State> {
           await this.printDirectoryFiles(path.concat(entry.name), await dir.getDirectoryHandle(entry.name))
           break
         case "file":
+          console.debug(`${path.concat(entry.name).join("/")}: started`)
+
           const file = await (await dir.getFileHandle(entry.name)).getFile()
 
           const data = new Uint8Array(await file.arrayBuffer())
@@ -127,6 +129,8 @@ class App extends Component<Props, State> {
             ))
           })
           filesCounter++
+
+          console.debug(`${path.concat(entry.name).join("/")}: finished`)
           break
         default:
           break
