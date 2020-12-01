@@ -30,6 +30,8 @@ import("../pkg/index")
     self.onmessage = function (e: MessageEvent<Event>) {
       if (e.data.type === EventType.FILE) {
         const file = e.data.data as File
+        console.debug(`${file.path.join("/")}: received message in worker`)
+
         wasm.processFile(new wasm.File(file.data, file.path, file.kind), processor)
       }
     }

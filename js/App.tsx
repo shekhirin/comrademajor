@@ -89,7 +89,6 @@ class App extends Component<Props, State> {
     const t0 = performance.now()
 
     let filesCounter = 0
-    let sizeCounter = 0
 
     let kind = Kind.Unknown
 
@@ -108,29 +107,33 @@ class App extends Component<Props, State> {
     }
 
     for await (const entry of dir.values()) {
+      const entryPath = path.concat(entry.name)
+
       switch (entry.kind) {
         case "directory":
-          await this.printDirectoryFiles(path.concat(entry.name), await dir.getDirectoryHandle(entry.name))
+          await this.printDirectoryFiles(entryPath, await dir.getDirectoryHandle(entry.name))
           break
         case "file":
-          console.debug(`${path.concat(entry.name).join("/")}: started`)
+          console.debug(`${entryPath.join("/")}: started`)
 
+          console.debug(`${entryPath.join("/")}: getting file handle & file itself...`)
           const file = await (await dir.getFileHandle(entry.name)).getFile()
 
+          console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
           const data = new Uint8Array(await file.arrayBuffer())
-          sizeCounter += data.length
 
+          console.debug(`${entryPath.join("/")}: sending message to worker...`)
           worker.postMessage({
             type: EventType.FILE,
             data: new File(new WASMFile(
               data,
-              path,
+              entryPath,
               kind
             ))
           })
           filesCounter++
 
-          console.debug(`${path.concat(entry.name).join("/")}: finished`)
+          console.debug(`${entryPath.join("/")}: finished`)
           break
         default:
           break
