@@ -28,10 +28,6 @@ const appConfig = {
   plugins: [
     new HTMLWebpackPlugin({
       template: path.join(__dirname, "static", "index.html")
-    }),
-    new WASMPackPlugin({
-      crateDirectory: path.join(__dirname, "cargo"),
-      outDir: path.join(__dirname, "pkg")
     })
   ],
   experiments: {
@@ -58,6 +54,12 @@ const workerConfig = {
     path: dist,
     filename: "worker.js"
   },
+  plugins: [
+    new WASMPackPlugin({
+      crateDirectory: path.join(__dirname, "cargo"),
+      outDir: path.join(__dirname, "pkg")
+    })
+  ],
   experiments: {
     syncWebAssembly: true
   }

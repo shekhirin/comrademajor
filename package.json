@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "build": "rimraf dist pkg && webpack --config webpack.prod.js",
+    "build-wo-wasm": "rimraf dist && webpack --config webpack.prod-wo-wasm.js",
     "start": "rimraf dist pkg && webpack serve",
     "test": "cargo test && wasm-pack test --headless"
   },
