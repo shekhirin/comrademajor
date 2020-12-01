@@ -7,6 +7,7 @@ import File from "./types/File"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import {Event, EventType} from "./worker"
+import {customizeRetry} from "ts-retry-promise"
 
 const worker = new Worker("worker.js")
 
@@ -17,6 +18,8 @@ interface State {
   comments: CommentType[]
   messages: WASMMessage[]
 }
+
+const retry10s = customizeRetry({timeout: 10 * 1000, retries: 2})
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -116,8 +119,11 @@ class App extends Component<Props, State> {
         case "file":
           console.debug(`${entryPath.join("/")}: started`)
 
-          console.debug(`${entryPath.join("/")}: getting file handle & file itself...`)
-          const file = await (await dir.getFileHandle(entry.name)).getFile()
+          console.debug(`${entryPath.join("/")}: getting file handle...`)
+          const fileHandle = await retry10s(() => dir.getFileHandle(entry.name))
+
+          console.debug(`${entryPath.join("/")}: getting file...`)
+          const file = await retry10s(() => fileHandle.getFile())
 
           console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
           const data = new Uint8Array(await file.arrayBuffer())
