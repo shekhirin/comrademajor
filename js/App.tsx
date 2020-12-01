@@ -84,6 +84,8 @@ class App extends Component<Props, State> {
   }
 
   async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle) {
+    console.debug(`${path.join("/")}: started`)
+
     const t0 = performance.now()
 
     let filesCounter = 0
@@ -133,7 +135,7 @@ class App extends Component<Props, State> {
 
     const t1 = performance.now()
 
-    console.debug(`${path.join("/")}: ${filesCounter} files in ${t1 - t0}ms`)
+    console.debug(`${path.join("/")}: finished ${filesCounter} files in ${t1 - t0}ms`)
   }
 }
 
