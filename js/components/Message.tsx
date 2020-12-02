@@ -12,7 +12,8 @@ interface State {
 export default class Message extends Component<Props, State> {
   render() {
     return <div>
-      {this.props.message.author && `${this.props.message.author}: `}{this.highlightedText()}
+      {this.props.message.author && this.props.message.authorURL &&
+      `${<a href={this.props.message.authorURL}>{this.props.message.author}</a>}: `}{this.highlightedText()}
     </div>
   }
 

@@ -32,7 +32,7 @@ impl File {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = "FileKind")]
 #[derive(Copy, Clone)]
 pub enum Kind {
     Unknown,

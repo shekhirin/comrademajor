@@ -1,13 +1,13 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {File as WASMFile, Kind, Message as WASMMessage} from "../pkg/index"
+import {File as WASMFile, FileKind, Message as WASMMessage} from "../pkg/index"
 import Comment from "./components/Comment"
 import Message from "./components/Message"
 import File from "./types/File"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import {Event, EventType} from "./worker"
-import {customizeRetry} from "ts-retry-promise"
+import {retry} from "ts-retry-promise"
 
 const worker = new Worker("worker.js")
 
@@ -18,8 +18,6 @@ interface State {
   comments: CommentType[]
   messages: WASMMessage[]
 }
-
-const retry10s = customizeRetry({timeout: 10 * 1000, retries: 2})
 
 class App extends Component<Props, State> {
   constructor(props: Props) {
@@ -61,20 +59,20 @@ class App extends Component<Props, State> {
     return (
       <div>
         <div>
-          comments:
-          <ul>
-            {this.state.comments.map((comment, i) =>
-              <li key={i}><Comment comment={comment}/></li>
-            )}
-          </ul>
+          {this.state.comments.length} comments
+          {/*<ul>*/}
+          {/*  {this.state.comments.map((comment, i) =>*/}
+          {/*    <li key={i}><Comment comment={comment}/></li>*/}
+          {/*  )}*/}
+          {/*</ul>*/}
         </div>
         <div>
-          messages:
-          <ul>
-            {this.state.messages.map((message, i) =>
-              <li key={i}><Message message={message}/></li>
-            )}
-          </ul>
+          {this.state.messages.length} messages
+          {/*<ul>*/}
+          {/*  {this.state.messages.map((message, i) =>*/}
+          {/*    <li key={i}><Message message={message}/></li>*/}
+          {/*  )}*/}
+          {/*</ul>*/}
         </div>
         <button onClick={this.directoryPicker.bind(this)}>Choose Directory</button>
       </div>
@@ -93,18 +91,18 @@ class App extends Component<Props, State> {
 
     let filesCounter = 0
 
-    let kind = Kind.Unknown
+    let kind = FileKind.Unknown
 
     if (path.length > 1) {
       switch (path[1]) {
         case "comments":
-          kind = Kind.Comments
+          kind = FileKind.Comments
           break
         case "messages":
-          kind = Kind.Messages
+          kind = FileKind.Messages
           break
         default:
-          console.log(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
+          console.debug(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
           return
       }
     }
@@ -120,10 +118,10 @@ class App extends Component<Props, State> {
           console.debug(`${entryPath.join("/")}: started`)
 
           console.debug(`${entryPath.join("/")}: getting file handle...`)
-          const fileHandle = await retry10s(() => dir.getFileHandle(entry.name))
+          const fileHandle = await retry(() => dir.getFileHandle(entry.name), {timeout: 10 * 1000, retries: 2})
 
           console.debug(`${entryPath.join("/")}: getting file...`)
-          const file = await retry10s(() => fileHandle.getFile())
+          const file = await retry(() => fileHandle.getFile(), {timeout: 10 * 1000, retries: 2})
 
           console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
           const data = new Uint8Array(await file.arrayBuffer())

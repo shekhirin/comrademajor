@@ -2,3 +2,5 @@
 node_modules
 /dist
 /wasm-pack.log
+pkg/.gitignore
+!/pkg/*

@@ -31,6 +31,7 @@ pub struct Message {
     dialog_name: String,
     author: Option<String>,
     author_url: Option<String>,
+    date: String,
     text: String,
     kludges: Vec<Kludge>,
     highlighted_parts: Vec<Location>,
@@ -42,6 +43,7 @@ impl Message {
         dialog_name: String,
         author: Option<String>,
         author_url: Option<String>,
+        date: String,
         text: String,
         kludges: Vec<Kludge>,
         highlighted_parts: Vec<Location>,
@@ -51,6 +53,7 @@ impl Message {
             dialog_name,
             author,
             author_url,
+            date,
             text,
             kludges,
             highlighted_parts,
@@ -73,6 +76,11 @@ impl Message {
     #[wasm_bindgen(getter, js_name = "authorURL")]
     pub fn author_url(&self) -> Option<String> {
         self.author_url.clone()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn date(&self) -> String {
+        self.date.clone()
     }
 
     #[wasm_bindgen(getter)]

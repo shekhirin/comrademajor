@@ -1,9 +1,24 @@
 use marked::{html, NodeRef};
 
+use wasm_bindgen::prelude::*;
+
 use crate::highlight::location::Location;
 use crate::highlight::swear::find_swear;
 use crate::parse::parser::Parser;
 use crate::types::{Kludge, Message};
+
+
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+#[allow(unused_macros)]
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
 
 impl Parser {
     pub fn messages(&self, root: NodeRef) -> Vec<Message> {
@@ -31,9 +46,9 @@ impl Parser {
                     None => return None,
                 };
 
-                let items = message_node
+                let items: Vec<_> = message_node
                     .select(|n| n.is_elem(html::t::DIV))
-                    .collect::<Vec<_>>();
+                    .collect();
 
                 if items.len() != 2 {
                     return None;
@@ -42,18 +57,35 @@ impl Parser {
                 let header = items[0];
                 let body = items[1];
 
-                let (author, author_url) = match header.children().next() {
-                    Some(a) => match (a.text(), a.attr("href")) {
-                        (Some(author), Some(author_url)) => {
-                            (Some(author.to_string()), Some(author_url.to_string()))
-                        }
-                        _ => (None, None),
+                let header_children: Vec<_> = header.children().collect();
+
+                let (author, author_url, date_node) = match header_children.len() {
+                    1 =>
+                        (None, None, header_children[0].as_text()),
+                    2 => {
+                        let author_node = header_children[0];
+                        let (author, author_url) = match (author_node.text(), author_node.attr("href")) {
+                            (Some(a), Some(a_url)) =>
+                                (Some(a.to_string()), Some(a_url.to_string())),
+                            _ => return None
+                        };
+
+                        (author, author_url, header_children[1].as_text())
                     },
-                    None => (None, None),
+                    _ => return None
                 };
 
-                let text = match body.text() {
-                    Some(text) => text.to_string(),
+                let date = match date_node {
+                    Some(date) => date.to_string(),
+                    None => return None
+                };
+
+                let body_text = body.children().next();
+                let text = match body_text {
+                    Some(body_text) => match body_text.as_text() {
+                        Some(text) => text.to_string(),
+                        None => return None
+                    },
                     None => return None,
                 };
 
@@ -78,6 +110,7 @@ impl Parser {
                     dialog_name.to_string(),
                     author,
                     author_url,
+                    date,
                     text,
                     kludges,
                     highlighted_parts,

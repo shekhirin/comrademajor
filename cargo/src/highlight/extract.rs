@@ -1,8 +1,8 @@
 use regex::Regex;
 
-use crate::highlight::location::Location;
+use crate::highlight::location::{Kind, Location};
 
-pub fn extract_locations(re: &Regex, text: &str) -> Vec<Location> {
+pub fn extract_locations(re: &Regex, kind: Kind, text: &str) -> Vec<Location> {
     re.find_iter(text)
         .map(|m| {
             let (mut start, mut end) = (0, 0);
@@ -23,6 +23,7 @@ pub fn extract_locations(re: &Regex, text: &str) -> Vec<Location> {
             Location {
                 start: start as u32,
                 end: end as u32,
+                kind,
             }
         })
         .collect::<Vec<_>>()
