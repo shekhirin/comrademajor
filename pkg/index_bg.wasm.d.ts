@@ -1,0 +1,38 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export function __wbg_location_free(a: number): void;
+export function __wbg_get_location_start(a: number): number;
+export function __wbg_set_location_start(a: number, b: number): void;
+export function __wbg_get_location_end(a: number): number;
+export function __wbg_set_location_end(a: number, b: number): void;
+export function __wbg_get_location_kind(a: number): number;
+export function __wbg_set_location_kind(a: number, b: number): void;
+export function __wbg_file_free(a: number): void;
+export function __wbg_get_file_kind(a: number): number;
+export function file_new(a: number, b: number, c: number, d: number): number;
+export function file_data(a: number, b: number): void;
+export function file_path(a: number): number;
+export function __wbg_comment_free(a: number): void;
+export function comment_text(a: number, b: number): void;
+export function comment_highlightedParts(a: number): number;
+export function comment_url(a: number, b: number): void;
+export function main_js(): void;
+export function processFile(a: number, b: number): void;
+export function __wbg_kludge_free(a: number): void;
+export function kludge_new(a: number, b: number): number;
+export function __wbg_message_free(a: number): void;
+export function message_dialogName(a: number, b: number): void;
+export function message_author(a: number, b: number): void;
+export function message_authorURL(a: number, b: number): void;
+export function message_date(a: number, b: number): void;
+export function message_text(a: number, b: number): void;
+export function message_kludges(a: number): number;
+export function message_highlightedParts(a: number): number;
+export function __wbg_get_message_id(a: number): number;
+export function __wbg_set_message_id(a: number, b: number): void;
+export function kludge_attachmentLink(a: number, b: number): void;
+export function __wbindgen_malloc(a: number): number;
+export function __wbindgen_realloc(a: number, b: number, c: number): number;
+export function __wbindgen_free(a: number, b: number): void;
+export function __wbindgen_start(): void;
