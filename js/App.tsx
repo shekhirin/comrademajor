@@ -5,7 +5,7 @@ import File from "./types/File"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import PostType from "./types/Post"
-import {Event, EventType} from "./worker"
+import {Event, EventProcessed, EventType} from "./worker"
 import {retry} from "ts-retry-promise"
 
 const worker = new Worker("worker.js")
@@ -14,8 +14,16 @@ interface Props {
 }
 
 interface State {
+  totalComments: number
+  processedComments: Set<string[]>
   comments: CommentType[]
+
+  totalMessages: number
+  processedMessages: Set<string[]>
   messages: MessageType[]
+
+  totalPosts: number
+  processedPosts: Set<string[]>
   posts: PostType[]
 }
 
@@ -27,23 +35,52 @@ class App extends Component<Props, State> {
     const addMessage = this.addMessage.bind(this)
     const addPost = this.addPost.bind(this)
 
+    const setState = this.setState.bind(this)
+
     worker.onmessage = function (e: MessageEvent<Event>) {
-      switch (e.data.type) {
+      const {type, data} = e.data
+      switch (type) {
+        case EventType.PROCESSED:
+          const {kind, path} = data as EventProcessed
+          switch (kind) {
+            case FileKind.Comments:
+              setState((prevState) => {
+                return {...prevState, processedComments: prevState.processedComments.add(path)}
+              })
+              break
+            case FileKind.Messages:
+              setState((prevState) => {
+                return {...prevState, processedMessages: prevState.processedMessages.add(path)}
+              })
+              break
+            case FileKind.Wall:
+              setState((prevState) => {
+                return {...prevState, processedPosts: prevState.processedPosts.add(path)}
+              })
+              break
+          }
+          break
         case EventType.COMMENT:
-          addComment(e.data.data as CommentType)
+          addComment(data as CommentType)
           break
         case EventType.MESSAGE:
-          addMessage(e.data.data as MessageType)
+          addMessage(data as MessageType)
           break
         case EventType.WALL:
-          addPost(e.data.data as PostType)
+          addPost(data as PostType)
           break
       }
     }
 
     this.state = {
+      totalComments: 0,
+      processedComments: new Set(),
       comments: [],
+      totalMessages: 0,
+      processedMessages: new Set(),
       messages: [],
+      totalPosts: 0,
+      processedPosts: new Set(),
       posts: []
     }
   }
@@ -70,7 +107,7 @@ class App extends Component<Props, State> {
     return (
       <div>
         <div>
-          {this.state.comments.length} comments
+          {this.state.comments.length} comments ({this.state.processedComments.size/this.state.totalComments*100 | 0}% files)
           {/*<ul>*/}
           {/*  {this.state.comments.map((comment, i) =>*/}
           {/*    <li key={i}><Comment comment={comment}/></li>*/}
@@ -78,7 +115,7 @@ class App extends Component<Props, State> {
           {/*</ul>*/}
         </div>
         <div>
-          {this.state.messages.length} messages
+          {this.state.messages.length} messages ({this.state.processedMessages.size/this.state.totalMessages*100 | 0}% files)
           {/*<ul>*/}
           {/*  {this.state.messages.map((message, i) =>*/}
           {/*    <li key={i}><Message message={message}/></li>*/}
@@ -86,7 +123,7 @@ class App extends Component<Props, State> {
           {/*</ul>*/}
         </div>
         <div>
-          {this.state.posts.length} posts
+          {this.state.posts.length} posts ({this.state.processedPosts.size/this.state.totalPosts*100 | 0}% files)
           {/*<ul>*/}
           {/*  {this.state.posts.map((post, i) =>*/}
           {/*    <li key={i}><Post post={post}/></li>*/}
@@ -157,15 +194,35 @@ class App extends Component<Props, State> {
           const data = new Uint8Array(await file.arrayBuffer())
 
           console.debug(`${entryPath.join("/")}: sending message to worker...`)
-          worker.postMessage({
-            type: EventType.FILE,
-            data: new File(new WASMFile(
-              data,
-              entryPath,
-              kind
-            ))
+          new Promise((resolve, reject) => {
+            worker.postMessage({
+              type: EventType.FILE,
+              data: new File(new WASMFile(
+                data,
+                entryPath,
+                kind
+              ))
+            })
           })
           filesCounter++
+
+          switch (kind) {
+            case FileKind.Comments:
+              this.setState((prevState) => {
+                return {...prevState, totalComments: prevState.totalComments + 1}
+              })
+              break
+            case FileKind.Messages:
+              this.setState((prevState) => {
+                return {...prevState, totalMessages: prevState.totalMessages + 1}
+              })
+              break
+            case FileKind.Wall:
+              this.setState((prevState) => {
+                return {...prevState, totalPosts: prevState.totalPosts + 1}
+              })
+              break
+          }
 
           console.debug(`${entryPath.join("/")}: finished`)
           break

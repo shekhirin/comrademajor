@@ -5,6 +5,7 @@ import Post from "./types/Post"
 import Processor from "./Processor"
 
 export enum EventType {
+  PROCESSED,
   FILE,
   COMMENT,
   MESSAGE,
@@ -14,6 +15,11 @@ export enum EventType {
 export interface Event {
   type: EventType,
   data: any
+}
+
+export interface EventProcessed {
+  kind: number,
+  path: string[]
 }
 
 const processor = new Processor(
@@ -38,6 +44,8 @@ import("../pkg/index")
         console.debug(`${file.path.join("/")}: received message in worker`)
 
         wasm.processFile(new wasm.File(file.data, file.path, file.kind), processor)
+
+        self.postMessage({type: EventType.PROCESSED, data: {kind: file.kind, path: file.path}})
       }
     }
   })
