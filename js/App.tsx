@@ -1,11 +1,10 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {File as WASMFile, FileKind, Message as WASMMessage} from "../pkg/index"
-import Comment from "./components/Comment"
-import Message from "./components/Message"
+import {File as WASMFile, FileKind} from "../pkg/index"
 import File from "./types/File"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
+import PostType from "./types/Post"
 import {Event, EventType} from "./worker"
 import {retry} from "ts-retry-promise"
 
@@ -16,7 +15,8 @@ interface Props {
 
 interface State {
   comments: CommentType[]
-  messages: WASMMessage[]
+  messages: MessageType[]
+  posts: PostType[]
 }
 
 class App extends Component<Props, State> {
@@ -25,6 +25,7 @@ class App extends Component<Props, State> {
 
     const addComment = this.addComment.bind(this)
     const addMessage = this.addMessage.bind(this)
+    const addPost = this.addPost.bind(this)
 
     worker.onmessage = function (e: MessageEvent<Event>) {
       switch (e.data.type) {
@@ -34,12 +35,16 @@ class App extends Component<Props, State> {
         case EventType.MESSAGE:
           addMessage(e.data.data as MessageType)
           break
+        case EventType.WALL:
+          addPost(e.data.data as PostType)
+          break
       }
     }
 
     this.state = {
       comments: [],
-      messages: []
+      messages: [],
+      posts: []
     }
   }
 
@@ -49,9 +54,15 @@ class App extends Component<Props, State> {
     })
   }
 
-  addMessage(message: WASMMessage) {
+  addMessage(message: MessageType) {
     this.setState((prevState) => {
       return {...prevState, messages: [...prevState.messages, message]}
+    })
+  }
+
+  addPost(post: PostType) {
+    this.setState((prevState) => {
+      return {...prevState, posts: [...prevState.posts, post]}
     })
   }
 
@@ -71,6 +82,14 @@ class App extends Component<Props, State> {
           {/*<ul>*/}
           {/*  {this.state.messages.map((message, i) =>*/}
           {/*    <li key={i}><Message message={message}/></li>*/}
+          {/*  )}*/}
+          {/*</ul>*/}
+        </div>
+        <div>
+          {this.state.posts.length} posts
+          {/*<ul>*/}
+          {/*  {this.state.posts.map((post, i) =>*/}
+          {/*    <li key={i}><Post post={post}/></li>*/}
           {/*  )}*/}
           {/*</ul>*/}
         </div>
@@ -101,6 +120,9 @@ class App extends Component<Props, State> {
         case "messages":
           kind = FileKind.Messages
           break
+        case "wall":
+          kind = FileKind.Wall
+          break
         default:
           console.debug(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
           return
@@ -112,9 +134,17 @@ class App extends Component<Props, State> {
 
       switch (entry.kind) {
         case "directory":
+          if (kind == FileKind.Wall) {
+            break
+          }
+
           await this.printDirectoryFiles(entryPath, await dir.getDirectoryHandle(entry.name))
           break
         case "file":
+          if (kind == FileKind.Unknown) {
+            break
+          }
+
           console.debug(`${entryPath.join("/")}: started`)
 
           console.debug(`${entryPath.join("/")}: getting file handle...`)

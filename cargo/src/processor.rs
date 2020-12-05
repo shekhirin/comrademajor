@@ -30,6 +30,7 @@ extern "C" {
 processor_methods! {
     (comment, Comment)
     (message, Message)
+    (post, Post)
 }
 
 pub struct Processor {

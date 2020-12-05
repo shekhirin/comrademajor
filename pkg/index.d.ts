@@ -8,7 +8,7 @@ export function processFile(file: File, js_processor: any): void;
 /**
 */
 export enum LocationKind {
-  SWEAR,
+  GOV,
 }
 /**
 */
@@ -16,6 +16,7 @@ export enum FileKind {
   Unknown,
   Comments,
   Messages,
+  Wall,
 }
 /**
 */
@@ -123,4 +124,41 @@ export class Message {
 * @returns {string}
 */
   readonly text: string;
+}
+/**
+*/
+export class Post {
+  free(): void;
+/**
+* @returns {string | undefined}
+*/
+  readonly author: string | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly authorURL: string | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly date: string | undefined;
+/**
+* @returns {Array<Location> | undefined}
+*/
+  readonly highlightedParts: Array<Location> | undefined;
+/**
+* @returns {Array<Kludge> | undefined}
+*/
+  readonly kludges: Array<Kludge> | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly link: string | undefined;
+/**
+* @returns {Post | undefined}
+*/
+  readonly repost: Post | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly text: string | undefined;
 }

@@ -38,4 +38,5 @@ pub enum Kind {
     Unknown,
     Comments,
     Messages,
+    Wall,
 }

@@ -1,7 +1,7 @@
 use marked::{html, NodeRef};
 
+use crate::highlight::gov::find_gov;
 use crate::highlight::location::Location;
-use crate::highlight::swear::find_swear;
 use crate::parse::parser::Parser;
 use crate::types::Comment;
 
@@ -21,13 +21,13 @@ impl Parser {
                     None => return None,
                 }
                     .to_string();
-                let url = items[1].text().and_then(|url| Some(url.to_string()));
+                let url = items[1].text().map(|url| url.to_string());
                 let _attachment = items[2]
                     .text()
-                    .and_then(|attachment| Some(attachment.to_string()));
-                let _date = items[3].text().and_then(|date| Some(date.to_string()));
+                    .map(|attachment| attachment.to_string());
+                let _date = items[3].text().map(|date| date.to_string());
 
-                let highlighted_parts: Vec<Location> = find_swear(text.as_ref());
+                let highlighted_parts: Vec<Location> = find_gov(text.as_ref());
                 if highlighted_parts.is_empty() {
                     return None;
                 }

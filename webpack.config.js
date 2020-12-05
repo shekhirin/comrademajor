@@ -65,4 +65,4 @@ const workerConfig = {
   }
 }
 
-module.exports = [appConfig, workerConfig]
+module.exports = [workerConfig, appConfig]

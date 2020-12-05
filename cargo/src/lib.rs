@@ -2,8 +2,8 @@
 extern crate lazy_static;
 
 use encoding_rs;
-use marked::html;
 use marked::EncodingHint;
+use marked::html;
 use wasm_bindgen::prelude::*;
 
 use file::{File, Kind};
@@ -20,20 +20,9 @@ mod types;
 #[wasm_bindgen(start, skip_typescript)]
 pub fn main_js() -> Result<(), JsValue> {
     #[cfg(debug_assertions)]
-    console_error_panic_hook::set_once();
+        console_error_panic_hook::set_once();
 
     Ok(())
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-#[allow(unused_macros)]
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen(js_name = processFile)]
@@ -56,5 +45,9 @@ pub fn process_file(file: File, js_processor: JsProcessor) {
             .messages(root)
             .iter()
             .for_each(|message| processor.message(message)),
+        Kind::Wall => parser
+            .wall(root)
+            .iter()
+            .for_each(|post| processor.post(post))
     }
 }

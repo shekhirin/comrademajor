@@ -1,8 +1,9 @@
-import {Comment, Message} from "pkg/index"
+import {Comment, Message, Post} from "pkg/index"
 
 interface Callbacks {
   newComment: (comment: Comment) => void
   newMessage: (message: Message) => void
+  newPost: (post: Post) => void
 }
 
 export default class Processor {
@@ -18,5 +19,9 @@ export default class Processor {
 
   message(message: Message) {
     this.callbacks.newMessage(message)
+  }
+
+  post(post: Post) {
+    this.callbacks.newPost(post)
   }
 }

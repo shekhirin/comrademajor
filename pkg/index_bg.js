@@ -151,10 +151,10 @@ export function processFile(file, js_processor) {
 
 /**
 */
-export const LocationKind = Object.freeze({ SWEAR:0,"0":"SWEAR", });
+export const LocationKind = Object.freeze({ GOV:0,"0":"GOV", });
 /**
 */
-export const FileKind = Object.freeze({ Unknown:0,"0":"Unknown",Comments:1,"1":"Comments",Messages:2,"2":"Messages", });
+export const FileKind = Object.freeze({ Unknown:0,"0":"Unknown",Comments:1,"1":"Comments",Messages:2,"2":"Messages",Wall:3,"3":"Wall", });
 /**
 */
 export class Comment {
@@ -309,7 +309,7 @@ export class Kludge {
         try {
             const retptr = wasm.__wbindgen_export_2.value - 16;
             wasm.__wbindgen_export_2.value = retptr;
-            wasm.comment_text(retptr, this.ptr);
+            wasm.kludge_attachmentLink(retptr, this.ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             return getStringFromWasm0(r0, r1);
@@ -509,14 +509,153 @@ export class Message {
         return takeObject(ret);
     }
 }
+/**
+*/
+export class Post {
+
+    static __wrap(ptr) {
+        const obj = Object.create(Post.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    free() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        wasm.__wbg_post_free(ptr);
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get link() {
+        try {
+            const retptr = wasm.__wbindgen_export_2.value - 16;
+            wasm.__wbindgen_export_2.value = retptr;
+            wasm.post_link(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_export_2.value += 16;
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get author() {
+        try {
+            const retptr = wasm.__wbindgen_export_2.value - 16;
+            wasm.__wbindgen_export_2.value = retptr;
+            wasm.post_author(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_export_2.value += 16;
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get authorURL() {
+        try {
+            const retptr = wasm.__wbindgen_export_2.value - 16;
+            wasm.__wbindgen_export_2.value = retptr;
+            wasm.comment_url(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_export_2.value += 16;
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get date() {
+        try {
+            const retptr = wasm.__wbindgen_export_2.value - 16;
+            wasm.__wbindgen_export_2.value = retptr;
+            wasm.post_date(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_export_2.value += 16;
+        }
+    }
+    /**
+    * @returns {string | undefined}
+    */
+    get text() {
+        try {
+            const retptr = wasm.__wbindgen_export_2.value - 16;
+            wasm.__wbindgen_export_2.value = retptr;
+            wasm.post_text(retptr, this.ptr);
+            var r0 = getInt32Memory0()[retptr / 4 + 0];
+            var r1 = getInt32Memory0()[retptr / 4 + 1];
+            let v0;
+            if (r0 !== 0) {
+                v0 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_free(r0, r1 * 1);
+            }
+            return v0;
+        } finally {
+            wasm.__wbindgen_export_2.value += 16;
+        }
+    }
+    /**
+    * @returns {Array<Kludge> | undefined}
+    */
+    get kludges() {
+        var ret = wasm.post_kludges(this.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @returns {Array<Location> | undefined}
+    */
+    get highlightedParts() {
+        var ret = wasm.post_highlightedParts(this.ptr);
+        return takeObject(ret);
+    }
+    /**
+    * @returns {Post | undefined}
+    */
+    get repost() {
+        var ret = wasm.post_repost(this.ptr);
+        return ret === 0 ? undefined : Post.__wrap(ret);
+    }
+}
 
 export const __wbg_new_e13110f81ae347cf = function() {
     var ret = new Array();
     return addHeapObject(ret);
 };
 
-export const __wbg_location_new = function(arg0) {
-    var ret = Location.__wrap(arg0);
+export const __wbg_kludge_new = function(arg0) {
+    var ret = Kludge.__wrap(arg0);
     return addHeapObject(ret);
 };
 
@@ -527,6 +666,11 @@ export const __wbg_push_b46eeec52d2b03bb = function(arg0, arg1) {
 
 export const __wbindgen_object_drop_ref = function(arg0) {
     takeObject(arg0);
+};
+
+export const __wbg_location_new = function(arg0) {
+    var ret = Location.__wrap(arg0);
+    return addHeapObject(ret);
 };
 
 export const __wbg_from_2a5d647e62275bfd = function(arg0) {
@@ -558,17 +702,16 @@ export const __wbindgen_string_get = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
+export const __wbg_post_60180b7809a3503e = function(arg0, arg1) {
+    getObject(arg0).post(Post.__wrap(arg1));
+};
+
 export const __wbg_comment_f60074448ef4ddeb = function(arg0, arg1) {
     getObject(arg0).comment(Comment.__wrap(arg1));
 };
 
 export const __wbg_message_cbae4d78d715c684 = function(arg0, arg1) {
     getObject(arg0).message(Message.__wrap(arg1));
-};
-
-export const __wbg_kludge_new = function(arg0) {
-    var ret = Kludge.__wrap(arg0);
-    return addHeapObject(ret);
 };
 
 export const __wbindgen_throw = function(arg0, arg1) {

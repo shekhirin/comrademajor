@@ -1,24 +1,9 @@
 use marked::{html, NodeRef};
 
-use wasm_bindgen::prelude::*;
-
+use crate::highlight::gov::find_gov;
 use crate::highlight::location::Location;
-use crate::highlight::swear::find_swear;
 use crate::parse::parser::Parser;
-use crate::types::{Kludge, Message};
-
-
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-#[allow(unused_macros)]
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
+use crate::types::Message;
 
 impl Parser {
     pub fn messages(&self, root: NodeRef) -> Vec<Message> {
@@ -71,7 +56,7 @@ impl Parser {
                         };
 
                         (author, author_url, header_children[1].as_text())
-                    },
+                    }
                     _ => return None
                 };
 
@@ -89,21 +74,12 @@ impl Parser {
                     None => return None,
                 };
 
-                let highlighted_parts: Vec<Location> = find_swear(&text);
+                let highlighted_parts: Vec<Location> = find_gov(&text);
                 if highlighted_parts.is_empty() {
                     return None;
                 }
 
-                let kludges = body
-                    .select(|n| match n.attr("class") {
-                        Some(class) => class.to_string() == "attachment__link",
-                        None => false,
-                    })
-                    .filter_map(|n| match n.attr("href") {
-                        Some(href) => Some(Kludge::new(href.to_string())),
-                        None => None,
-                    })
-                    .collect::<Vec<_>>();
+                let kludges = self.kludges(body);
 
                 Some(Message::new(
                     id,

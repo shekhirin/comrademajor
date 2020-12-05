@@ -1,12 +1,14 @@
 import File from "./types/File"
 import Comment from "./types/Comment"
 import Message from "./types/Message"
+import Post from "./types/Post"
 import Processor from "./Processor"
 
 export enum EventType {
   FILE,
   COMMENT,
-  MESSAGE
+  MESSAGE,
+  WALL
 }
 
 export interface Event {
@@ -21,6 +23,9 @@ const processor = new Processor(
     },
     newMessage: function (obj) {
       self.postMessage({type: EventType.MESSAGE, data: new Message(obj)})
+    },
+    newPost: function (obj) {
+      self.postMessage({type: EventType.WALL, data: new Post(obj)})
     }
   }
 )
