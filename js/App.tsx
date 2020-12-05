@@ -107,7 +107,7 @@ class App extends Component<Props, State> {
     return (
       <div>
         <div>
-          {this.state.comments.length} comments ({this.state.processedComments.size/this.state.totalComments*100 | 0}% files)
+          {this.state.comments.length} comments ({this.state.processedComments.size}/{this.state.totalComments} files)
           {/*<ul>*/}
           {/*  {this.state.comments.map((comment, i) =>*/}
           {/*    <li key={i}><Comment comment={comment}/></li>*/}
@@ -115,7 +115,7 @@ class App extends Component<Props, State> {
           {/*</ul>*/}
         </div>
         <div>
-          {this.state.messages.length} messages ({this.state.processedMessages.size/this.state.totalMessages*100 | 0}% files)
+          {this.state.messages.length} messages ({this.state.processedMessages.size}/{this.state.totalMessages} files)
           {/*<ul>*/}
           {/*  {this.state.messages.map((message, i) =>*/}
           {/*    <li key={i}><Message message={message}/></li>*/}
@@ -123,7 +123,7 @@ class App extends Component<Props, State> {
           {/*</ul>*/}
         </div>
         <div>
-          {this.state.posts.length} posts ({this.state.processedPosts.size/this.state.totalPosts*100 | 0}% files)
+          {this.state.posts.length} posts ({this.state.processedPosts.size}/{this.state.totalPosts} files)
           {/*<ul>*/}
           {/*  {this.state.posts.map((post, i) =>*/}
           {/*    <li key={i}><Post post={post}/></li>*/}
@@ -137,17 +137,21 @@ class App extends Component<Props, State> {
 
   async directoryPicker() {
     const dir = await showDirectoryPicker()
-    await this.printDirectoryFiles([dir.name], dir)
+    console.debug("collecting promise actions...")
+    const promiseActions = await this.printDirectoryFiles([dir.name], dir)
+    console.debug(`awaiting ${promiseActions.length} promise actions...`)
+    while (promiseActions.length) {
+      await Promise.all(promiseActions.splice(0, 10).map(async action =>
+        new Promise(async (resolve, reject) => resolve(await action()))
+      ))
+    }
+    console.debug("done!")
   }
 
-  async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle) {
-    console.debug(`${path.join("/")}: started`)
-
-    const t0 = performance.now()
-
-    let filesCounter = 0
-
+  async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle): Promise<(() => void)[]> {
     let kind = FileKind.Unknown
+
+    const promiseActions: (() => void)[] = []
 
     if (path.length > 1) {
       switch (path[1]) {
@@ -162,7 +166,7 @@ class App extends Component<Props, State> {
           break
         default:
           console.debug(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
-          return
+          return promiseActions
       }
     }
 
@@ -175,36 +179,12 @@ class App extends Component<Props, State> {
             break
           }
 
-          await this.printDirectoryFiles(entryPath, await dir.getDirectoryHandle(entry.name))
+          promiseActions.push(...await this.printDirectoryFiles(entryPath, await dir.getDirectoryHandle(entry.name)))
           break
         case "file":
           if (kind == FileKind.Unknown) {
             break
           }
-
-          console.debug(`${entryPath.join("/")}: started`)
-
-          console.debug(`${entryPath.join("/")}: getting file handle...`)
-          const fileHandle = await retry(() => dir.getFileHandle(entry.name), {timeout: 10 * 1000, retries: 2})
-
-          console.debug(`${entryPath.join("/")}: getting file...`)
-          const file = await retry(() => fileHandle.getFile(), {timeout: 10 * 1000, retries: 2})
-
-          console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
-          const data = new Uint8Array(await file.arrayBuffer())
-
-          console.debug(`${entryPath.join("/")}: sending message to worker...`)
-          new Promise((resolve, reject) => {
-            worker.postMessage({
-              type: EventType.FILE,
-              data: new File(new WASMFile(
-                data,
-                entryPath,
-                kind
-              ))
-            })
-          })
-          filesCounter++
 
           switch (kind) {
             case FileKind.Comments:
@@ -224,16 +204,37 @@ class App extends Component<Props, State> {
               break
           }
 
-          console.debug(`${entryPath.join("/")}: finished`)
+          promiseActions.push(async () => {
+            console.debug(`${entryPath.join("/")}: started`)
+
+            console.debug(`${entryPath.join("/")}: getting file handle...`)
+            const fileHandle = await retry(() => dir.getFileHandle(entry.name), {timeout: 10 * 1000, retries: 2})
+
+            console.debug(`${entryPath.join("/")}: getting file...`)
+            const file = await retry(() => fileHandle.getFile(), {timeout: 10 * 1000, retries: 2})
+
+            console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
+            const data = new Uint8Array(await file.arrayBuffer())
+
+            console.debug(`${entryPath.join("/")}: sending message to worker...`)
+            worker.postMessage({
+              type: EventType.FILE,
+              data: new File(new WASMFile(
+                data,
+                entryPath,
+                kind
+              ))
+            })
+
+            console.debug(`${entryPath.join("/")}: finished`)
+          })
           break
         default:
           break
       }
     }
 
-    const t1 = performance.now()
-
-    console.debug(`${path.join("/")}: finished ${filesCounter} files in ${t1 - t0}ms`)
+    return promiseActions
   }
 }
 
