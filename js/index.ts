@@ -1,2 +1,2 @@
-import("../pkg/index")
+import("@pkg")
 import("./App")

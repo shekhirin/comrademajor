@@ -1,5 +1,5 @@
 import React, {Component, ReactElement, ReactNode} from "react"
-import {Message as WASMMessage} from "../../pkg/index"
+import {Message as WASMMessage} from "@pkg"
 
 interface Props {
   message: WASMMessage

@@ -1,4 +1,4 @@
-import {Comment as WASMComment} from "../../pkg/index"
+import {Comment as WASMComment} from "@pkg"
 import Location from "./Location"
 
 export default class Comment {

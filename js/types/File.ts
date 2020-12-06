@@ -1,4 +1,4 @@
-import {File as WASMFile} from "../../pkg/index"
+import {File as WASMFile} from "@pkg"
 
 export default class File {
   readonly data: Uint8Array

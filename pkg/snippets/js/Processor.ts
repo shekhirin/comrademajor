@@ -1,4 +1,4 @@
-import {Comment, Message, Post} from "pkg/index"
+import {Comment, Message, Post} from "@pkg"
 
 interface Callbacks {
   newComment: (comment: Comment) => void

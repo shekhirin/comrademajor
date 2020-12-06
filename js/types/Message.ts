@@ -1,4 +1,4 @@
-import {Kludge as WASMKludge, Message as WASMMessage} from "../../pkg/index"
+import {Kludge as WASMKludge, Message as WASMMessage} from "@pkg"
 import Location from "./Location"
 
 export default class Message {

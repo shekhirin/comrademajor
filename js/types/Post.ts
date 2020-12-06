@@ -1,4 +1,4 @@
-import {Kludge as WASMKludge, Post as WASMPost} from "../../pkg/index"
+import {Kludge as WASMKludge, Post as WASMPost} from "@pkg"
 import Location from "./Location"
 
 export default class Post {

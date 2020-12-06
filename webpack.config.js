@@ -17,6 +17,9 @@ const appConfig = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".wasm"],
+    alias: {
+      "@pkg": path.resolve(__dirname, "pkg")
+    }
   },
   output: {
     path: dist,
@@ -49,6 +52,9 @@ const workerConfig = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".wasm"],
+    alias: {
+      "@pkg": path.resolve(__dirname, "pkg")
+    }
   },
   output: {
     path: dist,

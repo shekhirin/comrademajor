@@ -1,4 +1,4 @@
-import {Location as WASMLocation} from "../../pkg/index"
+import {Location as WASMLocation} from "@pkg"
 
 export default class Location {
   readonly start: number

@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {FileKind} from "../pkg/index"
+import {FileKind} from "@pkg"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import PostType from "./types/Post"

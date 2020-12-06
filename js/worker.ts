@@ -2,7 +2,7 @@ import Comment from "./types/Comment"
 import Message from "./types/Message"
 import Post from "./types/Post"
 import Processor from "./Processor"
-import {FileKind} from "../pkg/index"
+import {FileKind} from "@pkg"
 
 export enum EventType {
   PROCESSED,
@@ -42,7 +42,7 @@ const processor = new Processor(
   }
 )
 
-import("../pkg/index")
+import("@pkg")
   .then(wasm => {
     self.onmessage = async (e: MessageEvent<Event>) => {
       if (e.data.type === EventType.FILE) {
