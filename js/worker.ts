@@ -1,8 +1,8 @@
-import File from "./types/File"
 import Comment from "./types/Comment"
 import Message from "./types/Message"
 import Post from "./types/Post"
 import Processor from "./Processor"
+import {FileKind} from "../pkg/index"
 
 export enum EventType {
   PROCESSED,
@@ -22,6 +22,12 @@ export interface EventProcessed {
   path: string[]
 }
 
+export interface EventFile {
+  entryPath: string[]
+  arrayBuffer: ArrayBuffer
+  kind: FileKind
+}
+
 const processor = new Processor(
   {
     newComment: function (obj) {
@@ -38,14 +44,18 @@ const processor = new Processor(
 
 import("../pkg/index")
   .then(wasm => {
-    self.onmessage = function (e: MessageEvent<Event>) {
+    self.onmessage = async (e: MessageEvent<Event>) => {
       if (e.data.type === EventType.FILE) {
-        const file = e.data.data as File
-        console.debug(`${file.path.join("/")}: received message in worker`)
+        const {entryPath, arrayBuffer, kind} = e.data.data as EventFile
 
-        wasm.processFile(new wasm.File(file.data, file.path, file.kind), processor)
+        console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
+        const data = new Uint8Array(arrayBuffer)
 
-        self.postMessage({type: EventType.PROCESSED, data: {kind: file.kind, path: file.path}})
+        console.debug(`${entryPath.join("/")}: processing file with WASM...`)
+        wasm.processFile(new wasm.File(data, entryPath, kind), processor)
+
+        console.debug(`${entryPath.join("/")}: sending processed event back to main thread...`)
+        self.postMessage({type: EventType.PROCESSED, data: {kind, path: entryPath}})
       }
     }
   })

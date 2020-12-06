@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import ReactDOM from "react-dom"
-import {File as WASMFile, FileKind} from "../pkg/index"
-import File from "./types/File"
+import {FileKind} from "../pkg/index"
 import CommentType from "./types/Comment"
 import MessageType from "./types/Comment"
 import PostType from "./types/Post"
@@ -130,6 +129,7 @@ class App extends Component<Props, State> {
           {/*  )}*/}
           {/*</ul>*/}
         </div>
+
         <button onClick={this.directoryPicker.bind(this)}>Choose Directory</button>
       </div>
     )
@@ -137,21 +137,12 @@ class App extends Component<Props, State> {
 
   async directoryPicker() {
     const dir = await showDirectoryPicker()
-    console.debug("collecting promise actions...")
-    const promiseActions = await this.printDirectoryFiles([dir.name], dir)
-    console.debug(`awaiting ${promiseActions.length} promise actions...`)
-    while (promiseActions.length) {
-      await Promise.all(promiseActions.splice(0, 10).map(async action =>
-        new Promise(async (resolve, reject) => resolve(await action()))
-      ))
-    }
-    console.debug("done!")
+    await this.scanDirectory([dir.name], dir, "count")
+    await this.scanDirectory([dir.name], dir, "process")
   }
 
-  async printDirectoryFiles(path: string[], dir: FileSystemDirectoryHandle): Promise<(() => void)[]> {
+  async scanDirectory(path: string[], dir: FileSystemDirectoryHandle, mode: "count" | "process") {
     let kind = FileKind.Unknown
-
-    const promiseActions: (() => void)[] = []
 
     if (path.length > 1) {
       switch (path[1]) {
@@ -166,7 +157,7 @@ class App extends Component<Props, State> {
           break
         default:
           console.debug(`${path.join("/")}: unknown kind "${path[1]}", no need to traverse`)
-          return promiseActions
+          return
       }
     }
 
@@ -179,62 +170,58 @@ class App extends Component<Props, State> {
             break
           }
 
-          promiseActions.push(...await this.printDirectoryFiles(entryPath, await dir.getDirectoryHandle(entry.name)))
+          await this.scanDirectory(entryPath, await dir.getDirectoryHandle(entry.name), mode)
           break
         case "file":
           if (kind == FileKind.Unknown) {
             break
           }
 
-          switch (kind) {
-            case FileKind.Comments:
-              this.setState((prevState) => {
-                return {...prevState, totalComments: prevState.totalComments + 1}
-              })
+          switch (mode) {
+            case "count":
+              switch (kind) {
+                case FileKind.Comments:
+                  this.setState((prevState) => {
+                    return {...prevState, totalComments: prevState.totalComments + 1}
+                  })
+                  break
+                case FileKind.Messages:
+                  this.setState((prevState) => {
+                    return {...prevState, totalMessages: prevState.totalMessages + 1}
+                  })
+                  break
+                case FileKind.Wall:
+                  this.setState((prevState) => {
+                    return {...prevState, totalPosts: prevState.totalPosts + 1}
+                  })
+                  break
+              }
               break
-            case FileKind.Messages:
-              this.setState((prevState) => {
-                return {...prevState, totalMessages: prevState.totalMessages + 1}
-              })
-              break
-            case FileKind.Wall:
-              this.setState((prevState) => {
-                return {...prevState, totalPosts: prevState.totalPosts + 1}
+            case "process":
+              console.debug(`${entryPath.join("/")}: getting file handle...`)
+              const fileHandle = await retry(() => dir.getFileHandle(entry.name), {timeout: 10 * 1000, retries: 2})
+
+              console.debug(`${entryPath.join("/")}: getting file...`)
+              const file = await retry(() => fileHandle.getFile(), {timeout: 10 * 1000, retries: 2})
+
+              console.debug(`${entryPath.join("/")}: getting file array buffer...`)
+              const arrayBuffer = await file.arrayBuffer()
+
+              console.debug(`${entryPath.join("/")}: posting worker action...`)
+              worker.postMessage({
+                type: EventType.FILE, data: {
+                  entryPath,
+                  arrayBuffer,
+                  kind
+                }
               })
               break
           }
-
-          promiseActions.push(async () => {
-            console.debug(`${entryPath.join("/")}: started`)
-
-            console.debug(`${entryPath.join("/")}: getting file handle...`)
-            const fileHandle = await retry(() => dir.getFileHandle(entry.name), {timeout: 10 * 1000, retries: 2})
-
-            console.debug(`${entryPath.join("/")}: getting file...`)
-            const file = await retry(() => fileHandle.getFile(), {timeout: 10 * 1000, retries: 2})
-
-            console.debug(`${entryPath.join("/")}: constructing UInt8Array...`)
-            const data = new Uint8Array(await file.arrayBuffer())
-
-            console.debug(`${entryPath.join("/")}: sending message to worker...`)
-            worker.postMessage({
-              type: EventType.FILE,
-              data: new File(new WASMFile(
-                data,
-                entryPath,
-                kind
-              ))
-            })
-
-            console.debug(`${entryPath.join("/")}: finished`)
-          })
           break
         default:
           break
       }
     }
-
-    return promiseActions
   }
 }
 
