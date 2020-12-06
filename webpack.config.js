@@ -23,7 +23,7 @@ const appConfig = {
     filename: "[name].js"
   },
   devServer: {
-    static: dist,
+    contentBase: dist
   },
   plugins: [
     new HTMLWebpackPlugin({

@@ -209,12 +209,13 @@ class App extends Component<Props, State> {
 
               console.debug(`${entryPath.join("/")}: posting worker action...`)
               worker.postMessage({
-                type: EventType.FILE, data: {
+                type: EventType.FILE,
+                data: {
                   entryPath,
                   arrayBuffer,
                   kind
                 }
-              })
+              }, [arrayBuffer])
               break
           }
           break
