@@ -42,26 +42,8 @@ impl Parser {
                 let header = items[0];
                 let body = items[1];
 
-                let header_children: Vec<_> = header.children().collect();
-
-                let (author, author_url, date_node) = match header_children.len() {
-                    1 =>
-                        (None, None, header_children[0].as_text()),
-                    2 => {
-                        let author_node = header_children[0];
-                        let (author, author_url) = match (author_node.text(), author_node.attr("href")) {
-                            (Some(a), Some(a_url)) =>
-                                (Some(a.to_string()), Some(a_url.to_string())),
-                            _ => return None
-                        };
-
-                        (author, author_url, header_children[1].as_text())
-                    }
-                    _ => return None
-                };
-
-                let date = match date_node {
-                    Some(date) => date.to_string(),
+                let (author, author_url, date) = match self.header(header) {
+                    Some(header) => (header.author_name, header.author_url, header.date),
                     None => return None
                 };
 

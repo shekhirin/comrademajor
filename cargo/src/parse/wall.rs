@@ -35,39 +35,15 @@ impl Parser {
                 let (author, author_url, date) =
                     match tertiary_item.find(|e| e.is_elem(html::t::SPAN)) {
                         Some(tertiary) => {
-                            let tertiary_children: Vec<_> = tertiary.children().collect();
-
-                            let (author, author_url, date_node) = match tertiary_children.len() {
-                                1 =>
-                                    (None, None, tertiary_children[0].as_text()),
-                                2 => {
-                                    let author_node = tertiary_children[0];
-                                    let (author, author_url) =
-                                        match (author_node.text(), author_node.attr("href")) {
-                                            (Some(a), Some(a_url)) =>
-                                                (Some(a.to_string()), Some(a_url.to_string())),
-                                            _ => return None
-                                        };
-
-                                    (author, author_url, tertiary_children[1].as_text())
-                                }
-                                _ => return None
-                            };
-
-                            let date = match date_node {
-                                Some(date) => Some(date.to_string()),
-                                None => None
+                            let (author, author_url, date) = match self.header(tertiary) {
+                                Some(header) => (header.author_name, header.author_url, header.date),
+                                None => return None
                             };
 
                             (author, author_url, date)
                         }
                         None => return None
                     };
-
-                let date = match date {
-                    Some(date) => date,
-                    None => return None
-                };
 
                 let body_inner_item = match body_item.find_child(|e|
                     e.is_elem(html::t::DIV) && e.attr("class").is_none()

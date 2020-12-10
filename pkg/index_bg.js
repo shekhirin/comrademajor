@@ -702,16 +702,16 @@ export const __wbindgen_string_get = function(arg0, arg1) {
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
-export const __wbg_post_60180b7809a3503e = function(arg0, arg1) {
-    getObject(arg0).post(Post.__wrap(arg1));
-};
-
 export const __wbg_comment_f60074448ef4ddeb = function(arg0, arg1) {
     getObject(arg0).comment(Comment.__wrap(arg1));
 };
 
 export const __wbg_message_cbae4d78d715c684 = function(arg0, arg1) {
     getObject(arg0).message(Message.__wrap(arg1));
+};
+
+export const __wbg_post_60180b7809a3503e = function(arg0, arg1) {
+    getObject(arg0).post(Post.__wrap(arg1));
 };
 
 export const __wbindgen_throw = function(arg0, arg1) {
