@@ -1,13 +1,13 @@
 use wasm_bindgen::prelude::*;
 
-use crate::highlight::location::{Location, LocationArray};
+use crate::highlight::{Location, LocationArray};
 use crate::js_array::binded::*;
 use crate::types::{Kludge, KludgeArray};
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Message {
-    pub id: u32,
+    id: String,
     dialog_name: String,
     author: Option<String>,
     author_url: Option<String>,
@@ -15,11 +15,12 @@ pub struct Message {
     text: String,
     kludges: Vec<Kludge>,
     highlighted_parts: Vec<Location>,
+    url: String,
 }
 
 impl Message {
     pub fn new(
-        id: u32,
+        id: String,
         dialog_name: String,
         author: Option<String>,
         author_url: Option<String>,
@@ -27,6 +28,7 @@ impl Message {
         text: String,
         kludges: Vec<Kludge>,
         highlighted_parts: Vec<Location>,
+        url: String,
     ) -> Message {
         Message {
             id,
@@ -37,12 +39,18 @@ impl Message {
             text,
             kludges,
             highlighted_parts,
+            url,
         }
     }
 }
 
 #[wasm_bindgen]
 impl Message {
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> String {
+        self.id.clone()
+    }
+
     #[wasm_bindgen(getter, js_name = "dialogName")]
     pub fn dialog_name(&self) -> String {
         self.dialog_name.to_string()
@@ -78,5 +86,10 @@ impl Message {
         self.highlighted_parts
             .clone()
             .to_js_array::<LocationArray>()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn url(&self) -> String {
+        self.url.clone()
     }
 }

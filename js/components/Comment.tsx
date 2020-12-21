@@ -1,19 +1,16 @@
 import React, {Component, ReactElement, ReactNode} from "react"
 import CommentType from "../types/Comment"
+import {Link} from "@material-ui/core"
 
 interface Props {
   comment: CommentType
 }
 
-interface State {
-
-}
-
-export default class Comment extends Component<Props, State> {
+export default class Comment extends Component<Props> {
   render() {
-    return <div>
+    return <>
       {this.highlightedText()}
-    </div>
+    </>
   }
 
   highlightedText(): ReactNode {
@@ -21,6 +18,7 @@ export default class Comment extends Component<Props, State> {
     const highlightedText: Array<string | ReactElement> = Array.from(text)
 
     highlightedParts
+      .slice()
       .sort((a, b) => b.start - a.start)
       .forEach((part, i, parts) => {
         const {start, end} = part

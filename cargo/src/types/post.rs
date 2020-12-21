@@ -1,13 +1,13 @@
 use wasm_bindgen::prelude::*;
 
-use crate::highlight::location::{Location, LocationArray};
+use crate::highlight::{Location, LocationArray};
 use crate::js_array::binded::*;
 use crate::types::{Kludge, KludgeArray};
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Post {
-    link: Option<String>,
+    id: String,
     author: Option<String>,
     author_url: Option<String>,
     date: Option<String>,
@@ -15,11 +15,12 @@ pub struct Post {
     kludges: Option<Vec<Kludge>>,
     highlighted_parts: Option<Vec<Location>>,
     repost: Option<Box<Post>>,
+    url: Option<String>
 }
 
 impl Post {
     pub fn new(
-        link: Option<String>,
+        id: String,
         author: Option<String>,
         author_url: Option<String>,
         date: Option<String>,
@@ -27,9 +28,10 @@ impl Post {
         kludges: Option<Vec<Kludge>>,
         highlighted_parts: Option<Vec<Location>>,
         repost: Option<Box<Post>>,
+        url: Option<String>
     ) -> Post {
         Post {
-            link,
+            id,
             author,
             author_url,
             date,
@@ -37,6 +39,7 @@ impl Post {
             kludges,
             highlighted_parts,
             repost,
+            url,
         }
     }
 }
@@ -44,8 +47,8 @@ impl Post {
 #[wasm_bindgen]
 impl Post {
     #[wasm_bindgen(getter)]
-    pub fn link(&self) -> Option<String> {
-        self.link.clone()
+    pub fn id(&self) -> String {
+        self.id.clone()
     }
 
     #[wasm_bindgen(getter)]
@@ -85,6 +88,11 @@ impl Post {
     #[wasm_bindgen(getter)]
     pub fn repost(&self) -> Option<Post> {
         self.repost.clone().and_then(|p| Some(*p))
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn url(&self) -> Option<String> {
+        return self.url.clone()
     }
 }
 

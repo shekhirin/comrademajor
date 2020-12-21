@@ -1,19 +1,21 @@
 use wasm_bindgen::prelude::*;
 
-use crate::highlight::location::{Location, LocationArray};
+use crate::highlight::{Location, LocationArray};
 use crate::js_array::binded::*;
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Comment {
+    id: String,
     text: String,
     highlighted_parts: Vec<Location>,
-    url: Option<String>,
+    url: String,
 }
 
 impl Comment {
-    pub fn new(text: String, highlighted_parts: Vec<Location>, url: Option<String>) -> Comment {
+    pub fn new(id: String, text: String, highlighted_parts: Vec<Location>, url: String) -> Comment {
         Comment {
+            id,
             text,
             highlighted_parts,
             url,
@@ -23,6 +25,11 @@ impl Comment {
 
 #[wasm_bindgen]
 impl Comment {
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> String {
+        self.id.clone()
+    }
+
     #[wasm_bindgen(getter)]
     pub fn text(&self) -> String {
         self.text.clone()
@@ -36,7 +43,7 @@ impl Comment {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn url(&self) -> Option<String> {
+    pub fn url(&self) -> String {
         self.url.clone()
     }
 }

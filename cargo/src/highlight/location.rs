@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use crate::highlight::Kind;
 
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -9,9 +10,3 @@ pub struct Location {
 }
 
 crate::js_array!(LocationArray, "Array<Location>");
-
-#[wasm_bindgen(js_name = "LocationKind")]
-#[derive(Copy, Clone)]
-pub enum Kind {
-    GOV
-}

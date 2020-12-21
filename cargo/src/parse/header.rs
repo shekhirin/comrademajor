@@ -1,5 +1,5 @@
 use marked::NodeRef;
-use crate::parse::parser::Parser;
+use crate::parse::Parser;
 
 pub struct Header {
     pub author_url: Option<String>,

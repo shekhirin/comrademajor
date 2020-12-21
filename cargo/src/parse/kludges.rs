@@ -1,6 +1,6 @@
 use marked::NodeRef;
 
-use crate::parse::parser::Parser;
+use crate::parse::Parser;
 use crate::types::Kludge;
 
 impl Parser {

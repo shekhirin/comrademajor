@@ -4,10 +4,12 @@ extern crate lazy_static;
 use encoding_rs;
 use marked::EncodingHint;
 use marked::html;
+use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;
 
 use file::{File, Kind};
-use parse::parser::Parser;
+use highlight::{Finder, Highlighter, Kind as HighlightKind};
+use parse::Parser;
 use processor::{JsProcessor, Processor};
 
 mod file;
@@ -25,29 +27,51 @@ pub fn main_js() -> Result<(), JsValue> {
     Ok(())
 }
 
-#[wasm_bindgen(js_name = processFile)]
-pub fn process_file(file: File, js_processor: JsProcessor) {
-    let eh = EncodingHint::shared_default(encoding_rs::WINDOWS_1251);
-    let doc = html::parse_buffered(eh, &mut file.data().as_slice()).unwrap();
+#[wasm_bindgen]
+pub struct ComradeMajor {
+    parser: Parser
+}
 
-    let root = doc.root_element_ref().unwrap();
+#[wasm_bindgen]
+impl ComradeMajor {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        ComradeMajor {
+            parser: Parser::new(
+                Highlighter {
+                    kinds: vec![
+                        HighlightKind::DRUGS,
+                        // HighlightKind::GOV
+                    ],
+                    finder: Finder::new(),
+                }
+            )
+        }
+    }
 
-    let processor: Processor = js_processor.into();
-    let parser = Parser {};
+    #[wasm_bindgen(js_name = processFile)]
+    pub fn process_file(&self, file: File, js_processor: JsProcessor) {
+        let eh = EncodingHint::shared_default(encoding_rs::WINDOWS_1251);
+        let doc = html::parse_buffered(eh, &mut file.data().as_slice()).unwrap();
 
-    match file.kind {
-        Kind::Unknown => {}
-        Kind::Comments => parser
-            .comments(root)
-            .iter()
-            .for_each(|comment| processor.comment(comment)),
-        Kind::Messages => parser
-            .messages(root)
-            .iter()
-            .for_each(|message| processor.message(message)),
-        Kind::Wall => parser
-            .wall(root)
-            .iter()
-            .for_each(|post| processor.post(post))
+        let root = doc.root_element_ref().unwrap();
+
+        let processor: Processor = js_processor.into();
+
+        match file.kind {
+            Kind::Unknown => {}
+            Kind::Comments => self.parser
+                .comments(file, root)
+                .iter()
+                .for_each(|comment| processor.comment(comment)),
+            Kind::Messages => self.parser
+                .messages(file, root)
+                .iter()
+                .for_each(|message| processor.message(message)),
+            Kind::Wall => self.parser
+                .wall(file, root)
+                .iter()
+                .for_each(|post| processor.post(post))
+        }
     }
 }

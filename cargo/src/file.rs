@@ -32,6 +32,12 @@ impl File {
     }
 }
 
+impl File {
+    pub fn raw_path(&self) -> Vec<String> {
+        return self.path.clone()
+    }
+}
+
 #[wasm_bindgen(js_name = "FileKind")]
 #[derive(Copy, Clone)]
 pub enum Kind {

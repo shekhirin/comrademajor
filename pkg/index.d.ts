@@ -1,22 +1,18 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {File} file
-* @param {any} js_processor
-*/
-export function processFile(file: File, js_processor: any): void;
-/**
-*/
-export enum LocationKind {
-  GOV,
-}
-/**
 */
 export enum FileKind {
   Unknown,
   Comments,
   Messages,
   Wall,
+}
+/**
+*/
+export enum HighlightKind {
+  GOV,
+  DRUGS,
 }
 /**
 */
@@ -29,11 +25,28 @@ export class Comment {
 /**
 * @returns {string}
 */
+  readonly id: string;
+/**
+* @returns {string}
+*/
   readonly text: string;
 /**
-* @returns {string | undefined}
+* @returns {string}
 */
-  readonly url: string | undefined;
+  readonly url: string;
+}
+/**
+*/
+export class ComradeMajor {
+  free(): void;
+/**
+*/
+  constructor();
+/**
+* @param {File} file
+* @param {any} js_processor
+*/
+  processFile(file: File, js_processor: any): void;
 }
 /**
 */
@@ -113,9 +126,9 @@ export class Message {
 */
   readonly highlightedParts: Array<Location>;
 /**
-* @returns {number}
+* @returns {string}
 */
-  id: number;
+  readonly id: string;
 /**
 * @returns {Array<Kludge>}
 */
@@ -124,6 +137,10 @@ export class Message {
 * @returns {string}
 */
   readonly text: string;
+/**
+* @returns {string}
+*/
+  readonly url: string;
 }
 /**
 */
@@ -146,13 +163,13 @@ export class Post {
 */
   readonly highlightedParts: Array<Location> | undefined;
 /**
+* @returns {string}
+*/
+  readonly id: string;
+/**
 * @returns {Array<Kludge> | undefined}
 */
   readonly kludges: Array<Kludge> | undefined;
-/**
-* @returns {string | undefined}
-*/
-  readonly link: string | undefined;
 /**
 * @returns {Post | undefined}
 */
@@ -161,4 +178,8 @@ export class Post {
 * @returns {string | undefined}
 */
   readonly text: string | undefined;
+/**
+* @returns {string | undefined}
+*/
+  readonly url: string | undefined;
 }

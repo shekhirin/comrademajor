@@ -1,12 +1,12 @@
 use marked::{html, NodeRef};
 use web_sys::console;
 
-use crate::highlight::gov::find_gov;
-use crate::parse::parser::Parser;
+use crate::parse::Parser;
 use crate::types::Post;
+use crate::File;
 
 impl Parser {
-    pub fn wall(&self, root: NodeRef) -> Vec<Post> {
+    pub fn wall(&self, file: File, root: NodeRef) -> Vec<Post> {
         root.select(|n| match n.attr("class") {
             Some(class) => class.to_string() == "item",
             None => false,
@@ -24,11 +24,16 @@ impl Parser {
                 let link_item = items[1];
                 let tertiary_item = items[2];
 
-                let link = match link_item.find(|e| e.is_elem(html::t::A)) {
+                let url = match link_item.find(|e| e.is_elem(html::t::A)) {
                     Some(link_node) => match link_node.attr("href") {
                         Some(link) => link.to_string(),
                         None => return None
                     },
+                    None => return None
+                };
+
+                let id = match url.split("/wall").nth(1) {
+                    Some(id) => id,
                     None => return None
                 };
 
@@ -60,7 +65,7 @@ impl Parser {
                             .and_then(|e| e.as_text().map(|e| e.to_string()));
 
                         let highlighted_parts = match &text {
-                            Some(text) => Some(find_gov(text)),
+                            Some(text) => Some(self.highlighter.highlight(text)),
                             None => None
                         };
 
@@ -103,7 +108,7 @@ impl Parser {
                                 };
 
                                 let highlighted_parts = match &text {
-                                    Some(text) => Some(find_gov(&text)),
+                                    Some(text) => Some(self.highlighter.highlight(&text)),
                                     None => None
                                 };
 
@@ -113,13 +118,14 @@ impl Parser {
                                 };
 
                                 Some(Post::new(
-                                    None,
+                                    [id, "_repost"].concat(),
                                     owner,
                                     owner_url,
                                     None,
                                     text,
                                     kludges,
                                     highlighted_parts,
+                                    None,
                                     None,
                                 ))
                             }
@@ -135,7 +141,7 @@ impl Parser {
                 }
 
                 Some(Post::new(
-                    Some(link),
+                    id.to_string(),
                     author,
                     author_url,
                     Some(date),
@@ -143,6 +149,7 @@ impl Parser {
                     kludges,
                     highlighted_parts,
                     repost.map(Box::new),
+                    Some(url),
                 ))
             })
             .collect()

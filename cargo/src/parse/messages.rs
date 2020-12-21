@@ -1,12 +1,12 @@
 use marked::{html, NodeRef};
 
-use crate::highlight::gov::find_gov;
-use crate::highlight::location::Location;
-use crate::parse::parser::Parser;
+use crate::File;
+use crate::highlight::Location;
+use crate::parse::Parser;
 use crate::types::Message;
 
 impl Parser {
-    pub fn messages(&self, root: NodeRef) -> Vec<Message> {
+    pub fn messages(&self, file: File, root: NodeRef) -> Vec<Message> {
         let ui_crumb = root
             .select(|n| match n.attr("class") {
                 Some(class) => class.to_string() == "ui_crumb",
@@ -56,15 +56,22 @@ impl Parser {
                     None => return None,
                 };
 
-                let highlighted_parts: Vec<Location> = find_gov(&text);
+                let highlighted_parts: Vec<Location> = self.highlighter.highlight(&text);
                 if highlighted_parts.is_empty() {
                     return None;
                 }
 
                 let kludges = self.kludges(body);
 
+                let dialog_id = match file.raw_path()[file.raw_path().len()-2].parse::<i32>() {
+                    Ok(dialog_id) => dialog_id,
+                    Err(_) => return None
+                };
+
+                let url = format!("https://vk.com/im?msgid={}&sel={}", id, dialog_id);
+
                 Some(Message::new(
-                    id,
+                    id.to_string(),
                     dialog_name.to_string(),
                     author,
                     author_url,
@@ -72,6 +79,7 @@ impl Parser {
                     text,
                     kludges,
                     highlighted_parts,
+                    url,
                 ))
             })
             .collect()

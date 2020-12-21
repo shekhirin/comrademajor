@@ -44,6 +44,8 @@ const processor = new Processor(
 
 import("@pkg")
   .then(wasm => {
+    const comradeMajor = new wasm.ComradeMajor()
+
     self.onmessage = async (e: MessageEvent<Event>) => {
       if (e.data.type === EventType.FILE) {
         const {entryPath, arrayBuffer, kind} = e.data.data as EventFile
@@ -52,7 +54,7 @@ import("@pkg")
         const data = new Uint8Array(arrayBuffer)
 
         console.debug(`${entryPath.join("/")}: processing file with WASM...`)
-        wasm.processFile(new wasm.File(data, entryPath, kind), processor)
+        comradeMajor.processFile(new wasm.File(data, entryPath, kind), processor)
 
         console.debug(`${entryPath.join("/")}: sending processed event back to main thread...`)
         self.postMessage({type: EventType.PROCESSED, data: {kind, path: entryPath}})

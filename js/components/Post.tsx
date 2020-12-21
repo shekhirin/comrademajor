@@ -1,20 +1,23 @@
 import React, {Component, ReactElement, ReactNode} from "react"
-import MessageType from "../types/Message"
+import PostType from "../types/Post"
 import {Link} from "@material-ui/core"
 
 interface Props {
-  message: MessageType
+  post: PostType
 }
 
-export default class Message extends Component<Props> {
+export default class Post extends Component<Props> {
   render() {
     return <>
-      <Link href={this.props.message.authorURL}>{this.props.message.author}</Link>: {this.highlightedText()}
+      <Link href={this.props.post.authorURL}>{this.props.post.author}</Link>: {this.highlightedText()}
+      {this.props.post.repost && <Post post={this.props.post.repost} />}
     </>
   }
 
   highlightedText(): ReactNode {
-    const {text, highlightedParts} = this.props.message
+    const {text, highlightedParts} = this.props.post
+    if (!text || !highlightedParts) return
+
     const highlightedText: Array<string | ReactElement> = Array.from(text)
 
     highlightedParts
