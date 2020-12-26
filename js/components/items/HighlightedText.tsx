@@ -1,28 +1,23 @@
-import React, {Component, ReactElement, ReactNode} from "react"
-import MessageType from "../types/Message"
-import {Link} from "@material-ui/core"
+import React, {Component, ReactElement} from "react"
+import Item from "../../types/items/Item"
 
 interface Props {
-  message: MessageType
+  item: Item
 }
 
-export default class Message extends Component<Props> {
+export default class extends Component<Props> {
   render() {
-    return <>
-      <Link href={this.props.message.authorURL}>{this.props.message.author}</Link>: {this.highlightedText()}
-    </>
-  }
+    const {text, highlightedParts} = this.props.item
+    if (!text || !highlightedParts) return null
 
-  highlightedText(): ReactNode {
-    const {text, highlightedParts} = this.props.message
     const highlightedText: Array<string | ReactElement> = Array.from(text)
 
     highlightedParts
       .slice()
       .sort((a, b) => b.start - a.start)
-      .forEach((part, i, parts) => {
+      .forEach(part => {
         const {start, end} = part
-        const highlightedPart = <span style={{color: "red"}}>{text.substring(start, end)}</span>
+        const highlightedPart = <span style={{backgroundColor: 'rgba(255, 0, 0, 0.8)'}}>{text.substring(start, end)}</span>
 
         highlightedText.splice(start, end - start, highlightedPart)
       })

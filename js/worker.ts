@@ -1,6 +1,6 @@
-import Comment from "./types/Comment"
-import Message from "./types/Message"
-import Post from "./types/Post"
+import Comment from "./types/items/Comment"
+import Message from "./types/items/Message"
+import Post from "./types/items/Post"
 import Processor from "./Processor"
 import {FileKind} from "@pkg"
 
@@ -31,13 +31,13 @@ export interface EventFile {
 const processor = new Processor(
   {
     newComment: function (obj) {
-      self.postMessage({type: EventType.COMMENT, data: new Comment(obj)})
+      self.postMessage({type: EventType.COMMENT, data: Comment.fromWASM(obj)})
     },
     newMessage: function (obj) {
-      self.postMessage({type: EventType.MESSAGE, data: new Message(obj)})
+      self.postMessage({type: EventType.MESSAGE, data: Message.fromWASM(obj)})
     },
     newPost: function (obj) {
-      self.postMessage({type: EventType.WALL, data: new Post(obj)})
+      self.postMessage({type: EventType.WALL, data: Post.fromWASM(obj)})
     }
   }
 )

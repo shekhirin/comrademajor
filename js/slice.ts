@@ -1,19 +1,24 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit"
-import CommentType from "./types/Comment"
-import MessageType from "./types/Message"
-import PostType from "./types/Post"
+import Comment from "./types/items/Comment"
+import Message from "./types/items/Message"
+import Post from "./types/items/Post"
 import {FileKind} from "@pkg"
 import {Set} from "immutable"
-import Item from "./types/Item"
+import Item from "./types/items/Item"
 
 interface Entity<T> {
+  entity: T,
+  addedAt: number
+}
+
+interface Kind<T> {
   name: string
   total: number
   processedPaths: Set<string[]>
-  entities: { entity: T, addedAt: number }[]
+  entities: Entity<T>[]
 }
 
-const initialEntity = function <T>(name: string): Entity<T> {
+const initialKind = function <T>(name: string): Kind<T> {
   return {
     name,
     total: 0,
@@ -26,9 +31,9 @@ interface State {
   total: number
   processedPaths: Set<string[]>
   kinds: {
-    comments: Entity<CommentType>
-    messages: Entity<MessageType>
-    posts: Entity<PostType>
+    comments: Kind<Comment>
+    messages: Kind<Message>
+    posts: Kind<Post>
   },
   searchTerm: string
 }
@@ -37,9 +42,9 @@ const initialState: State = {
   total: 0,
   processedPaths: Set(),
   kinds: {
-    comments: initialEntity("Comments"),
-    messages: initialEntity("Messages"),
-    posts: initialEntity("Posts")
+    comments: initialKind("Comments"),
+    messages: initialKind("Messages"),
+    posts: initialKind("Posts")
   },
   searchTerm: ""
 }
@@ -54,21 +59,21 @@ const slice = createSlice({
       state.processedPaths = state.processedPaths.add(action.payload)
       state.kinds.comments.processedPaths = state.kinds.comments.processedPaths.add(action.payload)
     },
-    addComment: (state, action: PayloadAction<CommentType>) => {
+    addComment: (state, action: PayloadAction<Comment>) => {
       state.kinds.comments.entities.push({entity: action.payload, addedAt: Date.now()})
     },
     addProcessedMessage: (state, action: PayloadAction<string[]>) => {
       state.processedPaths = state.processedPaths.add(action.payload)
       state.kinds.messages.processedPaths = state.kinds.messages.processedPaths.add(action.payload)
     },
-    addMessage: (state, action: PayloadAction<MessageType>) => {
+    addMessage: (state, action: PayloadAction<Message>) => {
       state.kinds.messages.entities.push({entity: action.payload, addedAt: Date.now()})
     },
     addProcessedPost: (state, action: PayloadAction<string[]>) => {
       state.processedPaths = state.processedPaths.add(action.payload)
       state.kinds.posts.processedPaths = state.kinds.posts.processedPaths.add(action.payload)
     },
-    addPost: (state, action: PayloadAction<PostType>) => {
+    addPost: (state, action: PayloadAction<Post>) => {
       state.kinds.posts.entities.push({entity: action.payload, addedAt: Date.now()})
     },
     countFile: (state, action: PayloadAction<FileKind>) => {
@@ -95,15 +100,16 @@ const slice = createSlice({
 
 const selectTotal = (state: State) => state.total
 const selectProcessedPaths = (state: State) => state.processedPaths
-const selectEntities = (state: State) => Object.values(state.kinds)
-  .map(kind => kind.entities)
+const selectEntities = (state: State) => Object
+  .values({
+    comments: state.kinds.comments.entities.map(obj => {return {...obj, entity: new Comment(obj.entity)}}),
+    messages: state.kinds.messages.entities.map(obj => {return {...obj, entity: new Message(obj.entity)}}),
+    posts: state.kinds.posts.entities.map(obj => {return {...obj, entity: new Post(obj.entity)}})
+  })
   .flat()
   .sort((a, b) => b.addedAt - a.addedAt)
   .map((entity): Item => entity.entity)
 const selectKinds = (state: State) => state.kinds
-const selectComments = (state: State) => state.kinds.comments
-const selectMessages = (state: State) => state.kinds.messages
-const selectPosts = (state: State) => state.kinds.posts
 const selectSearchTerm = (state: State) => state.searchTerm
 
 
@@ -115,9 +121,6 @@ export {
   selectProcessedPaths,
   selectEntities,
   selectKinds,
-  selectComments,
-  selectMessages,
-  selectPosts,
   selectSearchTerm
 }
 

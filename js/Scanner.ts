@@ -1,10 +1,9 @@
 import {FileKind} from "@pkg"
 import {retry} from "ts-retry-promise"
 import {Event, EventProcessed, EventType} from "./worker"
-import update from "immutability-helper"
-import CommentType from "./types/Comment"
-import MessageType from "./types/Message"
-import PostType from "./types/Post"
+import CommentType from "./types/items/Comment"
+import MessageType from "./types/items/Message"
+import PostType from "./types/items/Post"
 
 export interface ProcessedCallbacks {
   comment: (path: string[]) => void
