@@ -1,7 +1,7 @@
-import React from "react"
+import React, {useState} from "react"
 import {Box, Link, List, ListItem, ListItemText} from "@material-ui/core"
-import {selectEntities, selectSearchTerm, setSearchTerm} from "../slice"
-import {useDispatch, useSelector} from "react-redux"
+import {selectEntities} from "../slice"
+import {useSelector} from "react-redux"
 import Item from "../types/items/Item"
 import Comment from "./items/Comment"
 import CommentType from "../types/items/Comment"
@@ -12,10 +12,9 @@ import Post from "./items/Post"
 import Search from "./Search"
 
 export default function () {
-  const dispatch = useDispatch()
-
   const entities = useSelector(selectEntities)
-  const searchTerm = useSelector(selectSearchTerm)
+
+  const [searchTerm, setSearchTerm] = useState("")
 
   const elementForItem = (item: Item) => {
     switch (item.kind) {
@@ -38,7 +37,7 @@ export default function () {
       )
     })
 
-  const onSearchTermChange = (term) => dispatch(setSearchTerm(term))
+  const onSearchTermChange = (term) => setSearchTerm(term)
 
   return (
     <Box>

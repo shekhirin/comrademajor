@@ -34,8 +34,7 @@ interface State {
     comments: Kind<Comment>
     messages: Kind<Message>
     posts: Kind<Post>
-  },
-  searchTerm: string
+  }
 }
 
 const initialState: State = {
@@ -45,8 +44,7 @@ const initialState: State = {
     comments: initialKind("Comments"),
     messages: initialKind("Messages"),
     posts: initialKind("Posts")
-  },
-  searchTerm: ""
+  }
 }
 
 
@@ -90,9 +88,6 @@ const slice = createSlice({
           state.kinds.posts.total += 1
           break
       }
-    },
-    setSearchTerm: (state, action: PayloadAction<string>) => {
-      state.searchTerm = action.payload
     }
   }
 })
@@ -110,7 +105,6 @@ const selectEntities = (state: State) => Object
   .sort((a, b) => b.addedAt - a.addedAt)
   .map((entity): Item => entity.entity)
 const selectKinds = (state: State) => state.kinds
-const selectSearchTerm = (state: State) => state.searchTerm
 
 
 export default slice.reducer
@@ -120,8 +114,7 @@ export {
   selectTotal,
   selectProcessedPaths,
   selectEntities,
-  selectKinds,
-  selectSearchTerm
+  selectKinds
 }
 
 export const {
@@ -132,6 +125,5 @@ export const {
   addMessage,
   addProcessedPost,
   addPost,
-  countFile,
-  setSearchTerm
+  countFile
 } = slice.actions

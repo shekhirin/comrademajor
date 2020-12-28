@@ -40,6 +40,10 @@ export default class Message extends IMessage implements Item {
   contains(term: string): boolean {
     return this.text.includes(term)
   }
+
+  allHighlightedParts(): Array<Location> {
+    return this.highlightedParts
+  }
 }
 
 export class Kludge {

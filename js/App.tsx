@@ -26,6 +26,7 @@ import {
   addProcessedPost,
   countFile
 } from "./slice"
+import Stats from "./components/Stats"
 
 const theme = createMuiTheme({
   palette: {
@@ -66,9 +67,18 @@ function App() {
         <Box mt={2}>
           <Grid container spacing={3}>
             <Grid item xs={3}>
-              <Paper className={classes.paper}>
-                <Processor scanner={scanner}/>
-              </Paper>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <Processor scanner={scanner}/>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <Stats/>
+                  </Paper>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item xs={9}>
               <Paper className={classes.paper}>

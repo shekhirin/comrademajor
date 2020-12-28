@@ -7,4 +7,5 @@ export default interface Item {
   readonly highlightedParts?: Array<Location>
   readonly url?: string
   contains(term: string): boolean
+  allHighlightedParts(): Array<Location>
 }

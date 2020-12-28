@@ -1,22 +1,11 @@
 import React from "react"
-import {Box, Button} from "@material-ui/core"
+import {Box, Button, List, ListItem, ListItemText} from "@material-ui/core"
 import Scanner from "../Scanner"
 import {useDispatch, useSelector} from "react-redux"
-import {
-  addComment,
-  addMessage,
-  addPost,
-  addProcessedComment,
-  addProcessedMessage,
-  addProcessedPost,
-  countFile,
-  reset,
-  selectProcessedPaths,
-  selectTotal
-} from "../slice"
-import Stats from "./Stats"
+import {reset, selectKinds, selectProcessedPaths, selectTotal} from "../slice"
+import CircularProgressWithLabel from "./CircularProgressWithLabel"
 
-export default function ({scanner}: {scanner: Scanner}) {
+export default function ({scanner}: { scanner: Scanner }) {
   const dispatch = useDispatch()
 
   const processedPaths = useSelector(selectProcessedPaths)
@@ -41,7 +30,22 @@ export default function ({scanner}: {scanner: Scanner}) {
       >
         Choose Directory
       </Button>
-      <Stats/>
+      <Files disabled={total == 0}/>
     </Box>
+  )
+}
+
+function Files({disabled}: { disabled?: boolean }) {
+  const entities = useSelector(selectKinds)
+
+  return (
+    <List>
+      {Object.entries(entities).map(([key, entity]) =>
+        <ListItem key={key} disabled={disabled}>
+          <ListItemText primary={entity.name} secondary={`${entity.total} items`}/>
+          <CircularProgressWithLabel value={entity.processedPaths.size / entity.total * 100 || 0}/>
+        </ListItem>
+      )}
+    </List>
   )
 }

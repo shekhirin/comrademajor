@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {number} kind
+* @returns {string}
+*/
+export function highlightKindToString(kind: number): string;
+/**
 */
 export enum FileKind {
   Unknown,

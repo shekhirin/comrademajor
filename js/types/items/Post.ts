@@ -25,7 +25,7 @@ export default class Post extends IPost implements Item {
     super(post)
   }
 
-  static fromWASM(post: WASMPost): Post{
+  static fromWASM(post: WASMPost): Post {
     return new Post({
       id: post.id,
       author: post.author,
@@ -40,7 +40,12 @@ export default class Post extends IPost implements Item {
   }
 
   contains(term: string): boolean {
-    return this?.text?.includes(term) || this?.repost?.contains(term)
+    console.log(this, this.text?.includes(term) || this.repost?.contains?.(term))
+    return this.text?.includes(term) || this.repost?.contains?.(term)
+  }
+
+  allHighlightedParts(): Array<Location> {
+    return (this.highlightedParts || []).concat(this.repost?.highlightedParts || [])
   }
 }
 

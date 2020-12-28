@@ -39,6 +39,7 @@ export function post_kludges(a: number): number;
 export function post_highlightedParts(a: number): number;
 export function post_repost(a: number): number;
 export function post_url(a: number, b: number): void;
+export function highlightKindToString(a: number, b: number): void;
 export function post_authorURL(a: number, b: number): void;
 export function post_date(a: number, b: number): void;
 export function kludge_attachmentLink(a: number, b: number): void;

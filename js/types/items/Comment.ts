@@ -32,4 +32,8 @@ export default class Comment extends IComment implements Item {
   contains(term: string): boolean {
     return this.text.includes(term)
   }
+
+  allHighlightedParts(): Array<Location> {
+    return this.highlightedParts
+  }
 }
